@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Container,
@@ -33,6 +33,16 @@ const TermPage: React.FC = () => {
   const [terms, setTerms] = useState<Term[]>([]);
   const [newTerm, setNewTerm] = useState<Term>({ ...initialTerm });
   const [error, setError] = useState<string>('');
+
+  const apiUrl = '/v2/api/transport'; // Replace with your actual API URL
+
+  useEffect(() => {
+    // Fetch existing terms from the API
+    fetch(`${apiUrl}/terms`)
+      .then(response => response.json())
+      .then(data => setTerms(data))
+      .catch(error => console.error('There was an error fetching the terms!', error));
+  }, [apiUrl]);
 
   const isValidYear = (year: string) => /^\d{4}$/.test(year);
 
@@ -102,12 +112,27 @@ const TermPage: React.FC = () => {
       return;
     }
 
-    setTerms((prevTerms) => [
-      ...prevTerms,
-      { ...newTerm, termId: prevTerms.length + 1 }
-    ]);
-    setNewTerm({ ...initialTerm, termId: terms.length + 2 });
-    setError('');
+    // Send a POST request to create a new term
+    fetch(`${apiUrl}/terms`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTerm),
+    })
+      .then(response => response.json())
+      .then(data => {
+        setTerms((prevTerms) => [
+          ...prevTerms,
+          { ...newTerm, termId: data.termId }
+        ]);
+        setNewTerm({ ...initialTerm, termId: terms.length + 2 });
+        setError('');
+      })
+      .catch(error => {
+        setError('There was an error creating the term!');
+        console.error('There was an error creating the term!', error);
+      });
   };
 
   return (

@@ -5,6 +5,7 @@ import WatchList from './WatchList';
 import StudentTable from './StudentTable';
 
 function DashboardAdmin() {
+  console.log("we are in admin page")
   return (
     <>
       <Helmet>

@@ -11,4 +11,12 @@ export default defineConfig({
       'src': path.resolve(__dirname, 'src') // Ensure 'src' alias is also set
     },
   },
+  server: {
+    proxy: {
+      '/v2/api/transport': {
+        target: 'https://dev.myossem.com', 
+        changeOrigin: true,
+    },
+  },
+  },
 });

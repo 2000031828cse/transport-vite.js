@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 const PrivateRoute = ({ children, requiredRole }) => {
-  const isAuthenticated = localStorage.getItem('auth') === 'true';
+  const isAuthenticated = sessionStorage.getItem('otptoken');
   const userRole = localStorage.getItem('role');
 
   if (!isAuthenticated) {

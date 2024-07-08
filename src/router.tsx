@@ -14,6 +14,8 @@ import AddRoute from './content/applications/Busroutes/addroutes';
 import ChangePassword from './content/applications/Users/profile/ChangePassword';
 import AddStop from './content/applications/Stops/AddStop';
 import AdminPanel from './content/applications/create-user/adminpanel';
+import OtpVerification from './content/overview/Login/OtpVerification';
+import StudentTable from './content/dashboards/Admin/StudentTable';
 
 const BusPassRequest = lazy(
   () => import('./content/applications/buspassrequest')
@@ -67,6 +69,10 @@ const routes: RouteObject[] = [
       {
         path: 'overview',
         element: <Navigate to="/" replace />
+      },
+      {
+        path: 'otp-verification', // Add route for OTP verification
+        element: <OtpVerification />
       },
       {
         path: 'status',
@@ -136,7 +142,17 @@ const routes: RouteObject[] = [
             </Suspense>
           </PrivateRoute>
         )
-      }
+      },
+      {
+        path: 'StudentTable',
+        element: (
+          <PrivateRoute requiredRole="admin">
+            <Suspense fallback={<div>Loading...</div>}>
+              <StudentTable />
+            </Suspense>
+          </PrivateRoute>
+        )
+      },      
     ]
   },
   {
@@ -273,9 +289,11 @@ const routes: RouteObject[] = [
       {
         path: 'TermPage',
         element: (
+          <PrivateRoute requiredRole="admin">
           <Suspense fallback={<div>Loading...</div>}>
             <TermPage />
           </Suspense>
+          </PrivateRoute>
         )
       },
 

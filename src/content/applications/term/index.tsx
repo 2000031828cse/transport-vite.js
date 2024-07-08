@@ -16,18 +16,18 @@ import {
 } from '@mui/material';
 
 interface Term {
-  termId: number;
+  id: number;
   startYear: string;
   endYear: string;
-  semester: string;
+  sem: string;
 }
 
 const TermPage: React.FC = () => {
   const initialTerm: Term = {
-    termId: 1,
+    id: 1,
     startYear: '',
     endYear: '',
-    semester: 'Odd'
+    sem: 'odd'
   };
 
   const [terms, setTerms] = useState<Term[]>([]);
@@ -77,13 +77,13 @@ const TermPage: React.FC = () => {
       (existingTerm) =>
         existingTerm.startYear === term.startYear &&
         existingTerm.endYear === term.endYear &&
-        existingTerm.semester === term.semester
+        existingTerm.sem === term.sem
     );
   };
 
   const handleCreateTerm = () => {
-    if (!newTerm.startYear || !newTerm.endYear || !newTerm.semester) {
-      setError('Please select start year, end year, and semester.');
+    if (!newTerm.startYear || !newTerm.endYear || !newTerm.sem) {
+      setError('Please select start year, end year, and sem.');
       return;
     }
 
@@ -111,12 +111,16 @@ const TermPage: React.FC = () => {
       setError('This term already exists.');
       return;
     }
+    const otpt = sessionStorage.getItem('otptoken');
 
     // Send a POST request to create a new term
     fetch(`${apiUrl}/terms`, {
       method: 'POST',
+      
       headers: {
+        
         'Content-Type': 'application/json',
+        "Authorization": `Bearer ${otpt}`
       },
       body: JSON.stringify(newTerm),
     })
@@ -126,7 +130,7 @@ const TermPage: React.FC = () => {
           ...prevTerms,
           { ...newTerm, termId: data.termId }
         ]);
-        setNewTerm({ ...initialTerm, termId: terms.length + 2 });
+        setNewTerm({ ...initialTerm, id: terms.length + 2 });
         setError('');
       })
       .catch(error => {
@@ -152,7 +156,7 @@ const TermPage: React.FC = () => {
 
       <Box sx={{ mb: 2 }}>
         <Typography variant="body1" sx={{ mb: 2 }}>
-          Term ID: {newTerm.termId}
+          Term ID: {newTerm.id}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="body1" sx={{ minWidth: '100px', pr: 2 }}>
@@ -185,12 +189,12 @@ const TermPage: React.FC = () => {
             Semester:
           </Typography>
           <Select
-            value={newTerm.semester}
+            value={newTerm.sem}
             onChange={handleSemesterChange}
             fullWidth
           >
-            <MenuItem value="Odd">Odd</MenuItem>
-            <MenuItem value="Even">Even</MenuItem>
+            <MenuItem value="odd">Odd</MenuItem>
+            <MenuItem value="even">Even</MenuItem>
           </Select>
         </Box>
         {error && (
@@ -233,11 +237,11 @@ const TermPage: React.FC = () => {
             </TableHead>
             <TableBody>
               {terms.map((term) => (
-                <TableRow key={term.termId}>
-                  <TableCell>{term.termId}</TableCell>
+                <TableRow key={term.id}>
+                  <TableCell>{term.id}</TableCell>
                   <TableCell>{term.startYear}</TableCell>
                   <TableCell>{term.endYear}</TableCell>
-                  <TableCell>{term.semester}</TableCell>
+                  <TableCell>{term.sem}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

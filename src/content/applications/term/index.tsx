@@ -17,21 +17,19 @@ import {
 
 interface Term {
   id: number;
-  startYear: string;
-  endYear: string;
+  startYear: number | null;
+  endYear: number | null;
   sem: string;
 }
 
 const TermPage: React.FC = () => {
-  const initialTerm: Term = {
-    id: 1,
-    startYear: '',
-    endYear: '',
-    sem: 'odd'
-  };
-
   const [terms, setTerms] = useState<Term[]>([]);
-  const [newTerm, setNewTerm] = useState<Term>({ ...initialTerm });
+  const [newTerm, setNewTerm] = useState<Term>({
+    id: 1,
+    startYear: null,
+    endYear: null,
+    sem: 'odd'
+  });
   const [error, setError] = useState<string>('');
 
   const apiUrl = '/v2/api/transport'; // Replace with your actual API URL
@@ -40,35 +38,41 @@ const TermPage: React.FC = () => {
     // Fetch existing terms from the API
     fetch(`${apiUrl}/terms`)
       .then(response => response.json())
-      .then(data => setTerms(data))
+      .then(data => {
+        setTerms(data);
+        // Set the next term id
+        const nextId = data.length > 0 ? Math.max(...data.map((term: Term) => term.id)) + 1 : 1;
+        setNewTerm(prevTerm => ({
+          ...prevTerm,
+          id: nextId
+        }));
+      })
       .catch(error => console.error('There was an error fetching the terms!', error));
   }, [apiUrl]);
 
-  const isValidYear = (year: string) => /^\d{4}$/.test(year);
-
   const handleStartYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newStartYear = e.target.value;
-    setNewTerm((prevTerm) => ({
+    const newStartYear = parseInt(e.target.value, 10);
+    setNewTerm(prevTerm => ({
       ...prevTerm,
-      startYear: newStartYear
+      startYear: isNaN(newStartYear) ? null : newStartYear
     }));
     setError('');
   };
 
   const handleEndYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newEndYear = e.target.value;
-    setNewTerm((prevTerm) => ({
+    const newEndYear = parseInt(e.target.value, 10);
+    setNewTerm(prevTerm => ({
       ...prevTerm,
-      endYear: newEndYear
+      endYear: isNaN(newEndYear) ? null : newEndYear
     }));
     setError('');
   };
 
   const handleSemesterChange = (e: SelectChangeEvent<string>) => {
-    const newSemester = e.target.value as string;
-    setNewTerm((prevTerm) => ({
+    const newSemester = e.target.value;
+    setNewTerm(prevTerm => ({
       ...prevTerm,
-      semester: newSemester
+      sem: newSemester
     }));
   };
 
@@ -82,27 +86,27 @@ const TermPage: React.FC = () => {
   };
 
   const handleCreateTerm = () => {
-    if (!newTerm.startYear || !newTerm.endYear || !newTerm.sem) {
-      setError('Please select start year, end year, and sem.');
+    if (newTerm.startYear === null || newTerm.endYear === null || !newTerm.sem) {
+      setError('Please select start year, end year, and semester.');
       return;
     }
 
-    if (!isValidYear(newTerm.startYear)) {
+    if (newTerm.startYear.toString().length !== 4) {
       setError('Start year must be a valid 4-digit year.');
       return;
     }
 
-    if (!isValidYear(newTerm.endYear)) {
+    if (newTerm.endYear.toString().length !== 4) {
       setError('End year must be a valid 4-digit year.');
       return;
     }
 
-    if (parseInt(newTerm.endYear) < parseInt(newTerm.startYear)) {
+    if (newTerm.endYear < newTerm.startYear) {
       setError('End year cannot be before start year.');
       return;
     }
 
-    if (parseInt(newTerm.endYear) > parseInt(newTerm.startYear) + 1) {
+    if (newTerm.endYear > newTerm.startYear + 1) {
       setError('End year cannot exceed start year by more than one year.');
       return;
     }
@@ -111,26 +115,30 @@ const TermPage: React.FC = () => {
       setError('This term already exists.');
       return;
     }
+
     const otpt = sessionStorage.getItem('otptoken');
 
     // Send a POST request to create a new term
     fetch(`${apiUrl}/terms`, {
       method: 'POST',
-      
       headers: {
-        
         'Content-Type': 'application/json',
-        "Authorization": `Bearer ${otpt}`
+        'Authorization': `Bearer ${otpt}`
       },
       body: JSON.stringify(newTerm),
     })
       .then(response => response.json())
       .then(data => {
-        setTerms((prevTerms) => [
+        setTerms(prevTerms => [
           ...prevTerms,
-          { ...newTerm, termId: data.termId }
+          { ...newTerm, id: data.id }
         ]);
-        setNewTerm({ ...initialTerm, id: terms.length + 2 });
+        setNewTerm(prevTerm => ({
+          id: prevTerm.id + 1,
+          startYear: null,
+          endYear: null,
+          sem: 'odd'
+        }));
         setError('');
       })
       .catch(error => {
@@ -163,8 +171,8 @@ const TermPage: React.FC = () => {
             Start Year:
           </Typography>
           <TextField
-            type="text"
-            value={newTerm.startYear}
+            type="number"
+            value={newTerm.startYear !== null ? newTerm.startYear : ''}
             onChange={handleStartYearChange}
             variant="outlined"
             fullWidth
@@ -176,8 +184,8 @@ const TermPage: React.FC = () => {
             End Year:
           </Typography>
           <TextField
-            type="text"
-            value={newTerm.endYear}
+            type="number"
+            value={newTerm.endYear !== null ? newTerm.endYear : ''}
             onChange={handleEndYearChange}
             variant="outlined"
             fullWidth
@@ -236,7 +244,7 @@ const TermPage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {terms.map((term) => (
+              {terms.map(term => (
                 <TableRow key={term.id}>
                   <TableCell>{term.id}</TableCell>
                   <TableCell>{term.startYear}</TableCell>

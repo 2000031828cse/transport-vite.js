@@ -13,6 +13,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStops } from '../Stops/StopsContext';
 import { useBusRoutes } from './BusRoutesContext';
+import { Stop} from './stops' // Import Stop interface
 
 const AddRoute: React.FC = () => {
   const { stops } = useStops();
@@ -20,37 +21,33 @@ const AddRoute: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const editSno = searchParams.get('edit');
+  const editId = searchParams.get('edit');
 
   const initialRoute = {
-    sno: routes.length + 1,
+    id: routes.length + 1,
     location: '',
-    routeName: '',
+    name: '',
     timings: '',
-
     stops: []
   };
 
   const [newRoute, setNewRoute] = useState(initialRoute);
-  const [selectedStops, setSelectedStops] = useState<string[]>([]);
+  const [selectedStops, setSelectedStops] = useState<Stop[]>([]);
   const [errors, setErrors] = useState({
-    routeName: false,
+    name: false,
     timings: false,
-
     stops: false
   });
 
   useEffect(() => {
-    if (editSno) {
-      const routeToEdit = routes.find(
-        (route) => route.sno === parseInt(editSno)
-      );
+    if (editId) {
+      const routeToEdit = routes.find((route) => route.id === parseInt(editId));
       if (routeToEdit) {
         setNewRoute(routeToEdit);
         setSelectedStops(routeToEdit.stops);
       }
     }
-  }, [editSno, routes]);
+  }, [editId, routes]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -58,15 +55,13 @@ const AddRoute: React.FC = () => {
     setErrors({ ...errors, [name]: false });
   };
 
-  const handleStopChange = (
-    index: number,
-    event: SelectChangeEvent<string>
-  ) => {
-    const value = event.target.value as string;
+  const handleStopChange = (index: number, event: SelectChangeEvent<number>) => {
+    const stopId = event.target.value as number;
     const newSelectedStops = [...selectedStops];
+    const stop = stops.find((s) => s.id === stopId);
 
-    if (!newSelectedStops.includes(value)) {
-      newSelectedStops[index] = value;
+    if (stop && !newSelectedStops.some((s) => s.id === stopId)) {
+      newSelectedStops[index] = stop;
       setSelectedStops(newSelectedStops);
       setNewRoute({ ...newRoute, stops: newSelectedStops });
       setErrors({ ...errors, stops: false });
@@ -82,9 +77,9 @@ const AddRoute: React.FC = () => {
   const addNewStopField = (index: number | null = null) => {
     const newSelectedStops = [...selectedStops];
     if (index === null) {
-      newSelectedStops.push('');
+      newSelectedStops.push({ id: -1, address: '' }); // Placeholder for new stop
     } else {
-      newSelectedStops.splice(index + 1, 0, '');
+      newSelectedStops.splice(index + 1, 0, { id: -1, address: '' }); // Placeholder for new stop
     }
     setSelectedStops(newSelectedStops);
   };
@@ -92,21 +87,19 @@ const AddRoute: React.FC = () => {
   const validateForm = () => {
     let valid = true;
     const currentErrors = {
-      routeName: false,
+      name: false,
       timings: false,
-
       stops: false
     };
-    if (!newRoute.routeName) {
-      currentErrors.routeName = true;
+    if (!newRoute.name) {
+      currentErrors.name = true;
       valid = false;
     }
     if (!newRoute.timings) {
       currentErrors.timings = true;
       valid = false;
     }
-
-    if (selectedStops.length === 0 || selectedStops.some((stop) => !stop)) {
+    if (selectedStops.length === 0 || selectedStops.some((stop) => !stop.id)) {
       currentErrors.stops = true;
       valid = false;
     }
@@ -122,9 +115,9 @@ const AddRoute: React.FC = () => {
 
     const updatedRoute = {
       ...newRoute,
-      stops: selectedStops.filter((stop) => stop)
+      stops: selectedStops.filter((stop) => stop.id !== -1) // Filter out placeholders
     };
-    if (editSno) {
+    if (editId) {
       updateRoute(updatedRoute);
     } else {
       addRoute(updatedRoute);
@@ -139,16 +132,16 @@ const AddRoute: React.FC = () => {
   return (
     <Box sx={{ padding: '16px' }}>
       <Typography variant="h6">
-        {editSno ? 'Edit Route' : 'Add Route'}
+        {editId ? 'Edit Route' : 'Add Route'}
       </Typography>
       <FormControl fullWidth sx={{ marginBottom: '8px' }}>
         <TextField
-          error={errors.routeName}
-          helperText={errors.routeName ? 'Route Name is required' : ''}
+          error={errors.name}
+          helperText={errors.name ? 'Route Name is required' : ''}
           label="Route Name"
           variant="outlined"
-          name="routeName"
-          value={newRoute.routeName}
+          name="name" // Updated to match Route interface
+          value={newRoute.name}
           onChange={handleInputChange}
           fullWidth
           sx={{ marginBottom: '8px' }}
@@ -178,25 +171,25 @@ const AddRoute: React.FC = () => {
           <FormControl fullWidth sx={{ flex: 1, marginRight: '8px' }}>
             <InputLabel id={`stop-label-${index}`}>Stop {index + 1}</InputLabel>
             <Select
-              error={errors.stops && !stop}
+              error={errors.stops && stop.id === -1}
               labelId={`stop-label-${index}`}
-              value={stop}
+              value={stop.id}
               onChange={(event) =>
-                handleStopChange(index, event as SelectChangeEvent<string>)
+                handleStopChange(index, event as SelectChangeEvent<number>)
               }
               fullWidth
             >
               {stops
                 .filter(
-                  (s) => !selectedStops.includes(s.name) || s.name === stop
+                  (s) => !selectedStops.some((stop) => stop.id === s.id) || s.id === stop.id
                 )
                 .map((filteredStop) => (
-                  <MenuItem key={filteredStop.number} value={filteredStop.name}>
-                    {filteredStop.number}. {filteredStop.name}
+                  <MenuItem key={filteredStop.id} value={filteredStop.id}>
+                    {filteredStop.id}. {filteredStop.address}
                   </MenuItem>
                 ))}
             </Select>
-            {errors.stops && !stop && (
+            {errors.stops && stop.id === -1 && (
               <Typography
                 variant="caption"
                 color="error"
@@ -250,7 +243,7 @@ const AddRoute: React.FC = () => {
             marginRight: '8px'
           }}
         >
-          {editSno ? 'Update Route' : 'Add Route'}
+          {editId ? 'Update Route' : 'Add Route'}
         </Button>
         <Button
           onClick={handleCancel}

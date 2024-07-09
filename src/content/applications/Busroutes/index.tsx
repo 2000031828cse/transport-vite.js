@@ -147,11 +147,11 @@ const BusRoutes: React.FC = () => {
   };
 
   const handleEditRoute = (route) => {
-    navigate(`/management/addroutes?edit=${route.sno}`);
+    navigate(`/management/addroutes?edit=${route.id}`);
   };
 
-  const handleDeleteRoute = (sno: number) => {
-    deleteRoute(sno);
+  const handleDeleteRoute = (id: number) => {
+    deleteRoute(id);
   };
 
   return (
@@ -201,14 +201,18 @@ const BusRoutes: React.FC = () => {
           </TableHead>
           <TableBody>
             {routes.map((route) => (
-              <TableRow key={route.sno}>
-                <TableCell sx={{ color: '#000000' }}>{route.sno}</TableCell>
+              <TableRow key={route.id}>
+                <TableCell sx={{ color: '#000000' }}>{route.id}</TableCell>
                 <TableCell sx={{ color: '#000000' }}>
-                  {route.routeName}
+                  {route.name}
                 </TableCell>
                 <TableCell sx={{ color: '#000000' }}>{route.timings}</TableCell>
                 <TableCell sx={{ color: '#000000' }}>
-                  {route.stops.join(' - ')}
+                  {route.stops.map((stop, index) => (
+                    <span key={index}>
+                      {stop.address} {index < route.stops.length - 1 ? ' - ' : ''}
+                    </span>
+                  ))}
                 </TableCell>
                 <TableCell>
                   <IconButton
@@ -219,7 +223,7 @@ const BusRoutes: React.FC = () => {
                   </IconButton>
                   <IconButton
                     color="error"
-                    onClick={() => handleDeleteRoute(route.sno)}
+                    onClick={() => handleDeleteRoute(route.id)}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -234,3 +238,4 @@ const BusRoutes: React.FC = () => {
 };
 
 export default BusRoutes;
+

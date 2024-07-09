@@ -1,61 +1,61 @@
-import React, { useState } from 'react';
-import { Button, Container, TextField, Box, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useStops } from './StopsContext';
+import React, { useState } from "react";
+import { Button, Container, TextField, Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useStops } from "./StopsContext";
 
 const AddStop: React.FC = () => {
   const { addStop } = useStops();
   const navigate = useNavigate();
   const [stop, setStop] = useState({
-    name: '',
-    latitude: '',
-    longitude: '',
-    address: '',
-    landmark: ''
+    name: "",
+    latitude: "",
+    longitude: "",
+    address: "",
+    landmark: "",
   });
   const [errors, setErrors] = useState({
-    name: '',
-    latitude: '',
-    longitude: '',
-    address: '',
-    landmark: ''
+    name: "",
+    latitude: "",
+    longitude: "",
+    address: "",
+    landmark: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStop({
       ...stop,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const validate = () => {
-    let tempErrors = {
-      name: '',
-      latitude: '',
-      longitude: '',
-      address: '',
-      landmark: ''
+    const tempErrors = {
+      name: "",
+      latitude: "",
+      longitude: "",
+      address: "",
+      landmark: "",
     };
     let isValid = true;
 
     if (!stop.name) {
-      tempErrors.name = 'Stop Name is required';
+      tempErrors.name = "Stop Name is required";
       isValid = false;
     }
     if (!stop.latitude) {
-      tempErrors.latitude = 'Latitude is required';
+      tempErrors.latitude = "Latitude is required";
       isValid = false;
     }
     if (!stop.longitude) {
-      tempErrors.longitude = 'Longitude is required';
+      tempErrors.longitude = "Longitude is required";
       isValid = false;
     }
     if (!stop.address) {
-      tempErrors.address = 'Address is required';
+      tempErrors.address = "Address is required";
       isValid = false;
     }
     if (!stop.landmark) {
-      tempErrors.landmark = 'Landmark is required';
+      tempErrors.landmark = "Landmark is required";
       isValid = false;
     }
 
@@ -71,10 +71,10 @@ const AddStop: React.FC = () => {
       name: stop.name,
       latitude: stop.latitude,
       longitude: stop.longitude,
-      address: stop.address,
-      landmark: stop.landmark
+      // address: stop.address,
+      landmark: stop.landmark,
     });
-    navigate('/management/stops');
+    navigate("/management/stops");
   };
 
   return (
@@ -83,9 +83,9 @@ const AddStop: React.FC = () => {
       sx={{
         mt: 4,
         p: 2,
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        backgroundColor: '#ffffff'
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        backgroundColor: "#ffffff",
       }}
     >
       <Typography variant="h5" align="center" sx={{ mb: 3 }}>

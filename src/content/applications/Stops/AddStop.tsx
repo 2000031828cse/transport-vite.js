@@ -173,9 +173,10 @@ const AddStop: React.FC = () => {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
     setStop({
       ...stop,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -192,12 +193,12 @@ const AddStop: React.FC = () => {
       tempErrors.address = "Stop Address is required";
       isValid = false;
     }
-    if (!stop.lat) {
-      tempErrors.lat = "Latitude is required";
+    if (stop.lat && isNaN(Number(stop.lat))) {
+      tempErrors.lat = "Latitude must be a number";
       isValid = false;
     }
-    if (!stop.lng) {
-      tempErrors.lng = "Longitude is required";
+    if (stop.lng && isNaN(Number(stop.lng))) {
+      tempErrors.lng = "Longitude must be a number";
       isValid = false;
     }
     if (!stop.landmark) {
@@ -215,8 +216,8 @@ const AddStop: React.FC = () => {
 
     addStop({
       address: stop.address,
-      lat: stop.lat,
-      lng: stop.lng,
+      lat: stop.lat ? parseFloat(stop.lat) : undefined,
+      lng: stop.lng ? parseFloat(stop.lng) : undefined,
       landmark: stop.landmark,
     });
     navigate("/management/stops");
@@ -242,7 +243,7 @@ const AddStop: React.FC = () => {
           required
           fullWidth
           id="address"
-          label="Stop "
+          label="Stop Address"
           name="address"
           value={stop.address}
           onChange={handleChange}
@@ -251,7 +252,6 @@ const AddStop: React.FC = () => {
         />
         <TextField
           margin="normal"
-          required
           fullWidth
           id="lat"
           label="Latitude"
@@ -263,7 +263,6 @@ const AddStop: React.FC = () => {
         />
         <TextField
           margin="normal"
-          required
           fullWidth
           id="lng"
           label="Longitude"
@@ -300,5 +299,3 @@ const AddStop: React.FC = () => {
 };
 
 export default AddStop;
-
-

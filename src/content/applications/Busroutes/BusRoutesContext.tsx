@@ -137,7 +137,6 @@ import { Stop } from './stops'; // Ensure this path is correct
 
 interface Route {
   id: number;
-  location: string;
   name: string;
   timings: string;
   stops: Stop[]; // Ensure this is an array of Stop objects
@@ -175,11 +174,13 @@ const BusRoutesProvider: React.FC<BusRoutesProviderProps> = ({ children }) => {
       .then(data => setRoutes(data))
       .catch(error => console.error('Error fetching routes:', error));
   }, [apiUrl]);
-
+  const otpt = sessionStorage.getItem('otptoken');
   const addRoute = (route: Route) => {
     fetch(`${apiUrl}/routes`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': `Bearer ${otpt}`
+       },
       body: JSON.stringify(route),
     })
       .then(response => response.json())

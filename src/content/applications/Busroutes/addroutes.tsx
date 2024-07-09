@@ -13,7 +13,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStops } from '../Stops/StopsContext';
 import { useBusRoutes } from './BusRoutesContext';
-import { Stop} from './stops' // Import Stop interface
+import { Stop } from './stops'; // Correct the import path if necessary
 
 const AddRoute: React.FC = () => {
   const { stops } = useStops();
@@ -25,7 +25,6 @@ const AddRoute: React.FC = () => {
 
   const initialRoute = {
     id: routes.length + 1,
-    location: '',
     name: '',
     timings: '',
     stops: []
@@ -76,12 +75,9 @@ const AddRoute: React.FC = () => {
 
   const addNewStopField = (index: number | null = null) => {
     const newSelectedStops = [...selectedStops];
-    if (index === null) {
-      newSelectedStops.push({ id: -1, address: '' }); // Placeholder for new stop
-    } else {
-      newSelectedStops.splice(index + 1, 0, { id: -1, address: '' }); // Placeholder for new stop
-    }
+    newSelectedStops.push({ id: 0, address: '' }); // Placeholder for new stop with 0 (which is out of options range)
     setSelectedStops(newSelectedStops);
+    console.log('')
   };
 
   const validateForm = () => {
@@ -115,13 +111,18 @@ const AddRoute: React.FC = () => {
 
     const updatedRoute = {
       ...newRoute,
-      stops: selectedStops.filter((stop) => stop.id !== -1) // Filter out placeholders
+      stops: selectedStops.filter((stop) => stop.id !== 0) // Filter out placeholders
     };
+
     if (editId) {
       updateRoute(updatedRoute);
     } else {
       addRoute(updatedRoute);
     }
+
+    // Log to ensure the route is being added
+    console.log('Route added or updated:', updatedRoute);
+
     navigate('/management/busstages');
   };
 
@@ -140,7 +141,7 @@ const AddRoute: React.FC = () => {
           helperText={errors.name ? 'Route Name is required' : ''}
           label="Route Name"
           variant="outlined"
-          name="name" // Updated to match Route interface
+          name="name"
           value={newRoute.name}
           onChange={handleInputChange}
           fullWidth
@@ -171,14 +172,17 @@ const AddRoute: React.FC = () => {
           <FormControl fullWidth sx={{ flex: 1, marginRight: '8px' }}>
             <InputLabel id={`stop-label-${index}`}>Stop {index + 1}</InputLabel>
             <Select
-              error={errors.stops && stop.id === -1}
+              error={errors.stops && stop.id === 0}
               labelId={`stop-label-${index}`}
-              value={stop.id}
+              value={stop.id === 0 ? '' : stop.id}
               onChange={(event) =>
                 handleStopChange(index, event as SelectChangeEvent<number>)
               }
               fullWidth
             >
+              <MenuItem value="" disabled>
+                Select Stop
+              </MenuItem>
               {stops
                 .filter(
                   (s) => !selectedStops.some((stop) => stop.id === s.id) || s.id === stop.id
@@ -189,7 +193,7 @@ const AddRoute: React.FC = () => {
                   </MenuItem>
                 ))}
             </Select>
-            {errors.stops && stop.id === -1 && (
+            {errors.stops && stop.id === 0 && (
               <Typography
                 variant="caption"
                 color="error"

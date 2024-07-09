@@ -154,8 +154,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 interface Stop {
   id: number;
   address: string;
-  lat: string;
-  lng: string;
+  lat: number;
+  lng: number;
   landmark: string;
 }
 

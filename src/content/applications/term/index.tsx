@@ -101,8 +101,8 @@ const TermPage: React.FC = () => {
       return;
     }
 
-    if (newTerm.endYear < newTerm.startYear) {
-      setError('End year cannot be before start year.');
+    if (newTerm.endYear <= newTerm.startYear) {
+      setError('End year must be after the start year.');
       return;
     }
 

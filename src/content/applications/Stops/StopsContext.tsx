@@ -80,7 +80,6 @@ interface Stop {
   name: string;
   latitude: string;
   longitude: string;
-  // address: string;
   landmark: string;
 }
 
@@ -109,7 +108,6 @@ export const StopsProvider: React.FC<{ children: ReactNode }> = ({
       name: "benz circle",
       latitude: "16.5062",
       longitude: "80.6480",
-      // address: 'Benz Circle, Vijayawada',
       landmark: "near Benz Circle",
     },
     {
@@ -117,7 +115,6 @@ export const StopsProvider: React.FC<{ children: ReactNode }> = ({
       name: "varadhi",
       latitude: "16.5088",
       longitude: "80.6310",
-      // address: 'Varadhi, Vijayawada',
       landmark: "near Varadhi",
     },
     {
@@ -125,7 +122,6 @@ export const StopsProvider: React.FC<{ children: ReactNode }> = ({
       name: "tadepalli",
       latitude: "16.4668",
       longitude: "80.6256",
-      // address: 'Tadepalli, Guntur',
       landmark: "near Tadepalli",
     },
   ]);

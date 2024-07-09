@@ -10,14 +10,14 @@ const AddStop: React.FC = () => {
     name: "",
     latitude: "",
     longitude: "",
-    address: "",
+
     landmark: "",
   });
   const [errors, setErrors] = useState({
     name: "",
     latitude: "",
     longitude: "",
-    address: "",
+
     landmark: "",
   });
 
@@ -33,7 +33,6 @@ const AddStop: React.FC = () => {
       name: "",
       latitude: "",
       longitude: "",
-      address: "",
       landmark: "",
     };
     let isValid = true;
@@ -48,10 +47,6 @@ const AddStop: React.FC = () => {
     }
     if (!stop.longitude) {
       tempErrors.longitude = "Longitude is required";
-      isValid = false;
-    }
-    if (!stop.address) {
-      tempErrors.address = "Address is required";
       isValid = false;
     }
     if (!stop.landmark) {
@@ -71,7 +66,6 @@ const AddStop: React.FC = () => {
       name: stop.name,
       latitude: stop.latitude,
       longitude: stop.longitude,
-      // address: stop.address,
       landmark: stop.landmark,
     });
     navigate("/management/stops");
@@ -127,18 +121,6 @@ const AddStop: React.FC = () => {
           onChange={handleChange}
           error={Boolean(errors.longitude)}
           helperText={errors.longitude}
-        />
-        <TextField
-          margin="normal"
-          required
-          fullWidth
-          id="address"
-          label="Address"
-          name="address"
-          value={stop.address}
-          onChange={handleChange}
-          error={Boolean(errors.address)}
-          helperText={errors.address}
         />
         <TextField
           margin="normal"

@@ -157,9 +157,6 @@ const Stops: React.FC = () => {
             <TableCell>
               <strong>Longitude</strong>
             </TableCell>
-            {/* <TableCell>
-              <strong>Address</strong>
-            </TableCell> */}
             <TableCell>
               <strong>Landmark</strong>
             </TableCell>
@@ -175,7 +172,6 @@ const Stops: React.FC = () => {
               <TableCell>{stop.name}</TableCell>
               <TableCell>{stop.latitude}</TableCell>
               <TableCell>{stop.longitude}</TableCell>
-              {/* <TableCell>{stop.address}</TableCell> */}
               <TableCell>{stop.landmark}</TableCell>
               <TableCell>
                 <Button

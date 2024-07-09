@@ -73,20 +73,20 @@
 //   );
 // };
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface Stop {
   number: number;
   name: string;
   latitude: string;
   longitude: string;
-  address: string;
+  // address: string;
   landmark: string;
 }
 
 interface StopsContextType {
   stops: Stop[];
-  addStop: (stop: Omit<Stop, 'number'>) => void;
+  addStop: (stop: Omit<Stop, "number">) => void;
   deleteStop: (number: number) => void;
 }
 
@@ -95,42 +95,42 @@ const StopsContext = createContext<StopsContextType | undefined>(undefined);
 export const useStops = () => {
   const context = useContext(StopsContext);
   if (!context) {
-    throw new Error('useStops must be used within a StopsProvider');
+    throw new Error("useStops must be used within a StopsProvider");
   }
   return context;
 };
 
 export const StopsProvider: React.FC<{ children: ReactNode }> = ({
-  children
+  children,
 }) => {
   const [stops, setStops] = useState<Stop[]>([
     {
       number: 1,
-      name: 'benz circle',
-      latitude: '16.5062',
-      longitude: '80.6480',
-      address: 'Benz Circle, Vijayawada',
-      landmark: 'near Benz Circle'
+      name: "benz circle",
+      latitude: "16.5062",
+      longitude: "80.6480",
+      // address: 'Benz Circle, Vijayawada',
+      landmark: "near Benz Circle",
     },
     {
       number: 2,
-      name: 'varadhi',
-      latitude: '16.5088',
-      longitude: '80.6310',
-      address: 'Varadhi, Vijayawada',
-      landmark: 'near Varadhi'
+      name: "varadhi",
+      latitude: "16.5088",
+      longitude: "80.6310",
+      // address: 'Varadhi, Vijayawada',
+      landmark: "near Varadhi",
     },
     {
       number: 3,
-      name: 'tadepalli',
-      latitude: '16.4668',
-      longitude: '80.6256',
-      address: 'Tadepalli, Guntur',
-      landmark: 'near Tadepalli'
-    }
+      name: "tadepalli",
+      latitude: "16.4668",
+      longitude: "80.6256",
+      // address: 'Tadepalli, Guntur',
+      landmark: "near Tadepalli",
+    },
   ]);
 
-  const addStop = (stop: Omit<Stop, 'number'>) => {
+  const addStop = (stop: Omit<Stop, "number">) => {
     const newNumber =
       stops.length > 0 ? Math.max(...stops.map((s) => s.number)) + 1 : 1;
     const newStop: Stop = { ...stop, number: newNumber };
@@ -141,7 +141,7 @@ export const StopsProvider: React.FC<{ children: ReactNode }> = ({
     const updatedStops = stops.filter((stop) => stop.number !== number);
     const reassignedStops = updatedStops.map((stop, index) => ({
       ...stop,
-      number: index + 1
+      number: index + 1,
     }));
     setStops(reassignedStops);
   };

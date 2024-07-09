@@ -100,7 +100,7 @@
 
 // export default Stops;
 
-import React from 'react';
+import React from "react";
 import {
   Button,
   Container,
@@ -110,17 +110,17 @@ import {
   TableHead,
   TableRow,
   Box,
-  Typography
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useStops } from './StopsContext';
+  Typography,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useStops } from "./StopsContext";
 
 const Stops: React.FC = () => {
   const { stops, deleteStop } = useStops();
   const navigate = useNavigate();
 
   const handleAddStop = () => {
-    navigate('/management/add-stop');
+    navigate("/management/add-stop");
   };
 
   return (
@@ -129,14 +129,14 @@ const Stops: React.FC = () => {
       sx={{
         mt: 4,
         p: 3,
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        backgroundColor: '#ffffff',
-        textAlign: 'center' // Center aligns everything inside Container
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        backgroundColor: "#ffffff",
+        textAlign: "center", // Center aligns everything inside Container
       }}
     >
       <Typography variant="h5">Manage Stops</Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
         <Button variant="contained" color="primary" onClick={handleAddStop}>
           Add Stop
         </Button>
@@ -157,9 +157,9 @@ const Stops: React.FC = () => {
             <TableCell>
               <strong>Longitude</strong>
             </TableCell>
-            <TableCell>
+            {/* <TableCell>
               <strong>Address</strong>
-            </TableCell>
+            </TableCell> */}
             <TableCell>
               <strong>Landmark</strong>
             </TableCell>
@@ -175,7 +175,7 @@ const Stops: React.FC = () => {
               <TableCell>{stop.name}</TableCell>
               <TableCell>{stop.latitude}</TableCell>
               <TableCell>{stop.longitude}</TableCell>
-              <TableCell>{stop.address}</TableCell>
+              {/* <TableCell>{stop.address}</TableCell> */}
               <TableCell>{stop.landmark}</TableCell>
               <TableCell>
                 <Button

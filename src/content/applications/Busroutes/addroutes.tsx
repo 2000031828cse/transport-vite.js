@@ -73,11 +73,8 @@ const AddRoute: React.FC = () => {
     setNewRoute({ ...newRoute, stops: newSelectedStops });
   };
 
-  const addNewStopField = (index: number | null = null) => {
-    const newSelectedStops = [...selectedStops];
-    newSelectedStops.push({ id: 0, address: '' }); // Placeholder for new stop with 0 (which is out of options range)
-    setSelectedStops(newSelectedStops);
-    console.log('')
+  const addNewStopField = () => {
+    setSelectedStops([...selectedStops, { id: 0, address: '' }]);
   };
 
   const validateForm = () => {
@@ -120,9 +117,6 @@ const AddRoute: React.FC = () => {
       addRoute(updatedRoute);
     }
 
-    // Log to ensure the route is being added
-    console.log('Route added or updated:', updatedRoute);
-
     navigate('/management/busstages');
   };
 
@@ -161,102 +155,55 @@ const AddRoute: React.FC = () => {
           sx={{ marginBottom: '8px' }}
         />
       </FormControl>
-      <Typography variant="body1" sx={{ marginBottom: '8px' }}>
-        Stops
-      </Typography>
+      <Typography variant="body1">Stops:</Typography>
       {selectedStops.map((stop, index) => (
-        <Box
-          key={index}
-          sx={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
-        >
-          <FormControl fullWidth sx={{ flex: 1, marginRight: '8px' }}>
-            <InputLabel id={`stop-label-${index}`}>Stop {index + 1}</InputLabel>
-            <Select
-              error={errors.stops && stop.id === 0}
-              labelId={`stop-label-${index}`}
-              value={stop.id === 0 ? '' : stop.id}
-              onChange={(event) =>
-                handleStopChange(index, event as SelectChangeEvent<number>)
-              }
-              fullWidth
-            >
-              <MenuItem value="" disabled>
-                Select Stop
+        <FormControl fullWidth key={index} sx={{ marginBottom: '8px' }}>
+          <Select
+            value={stop.id}
+            onChange={(event) => handleStopChange(index, event)}
+            displayEmpty
+            renderValue={(selected) =>
+              selected === 0 ? (
+                <Typography color="textSecondary">Select Stop</Typography>
+              ) : (
+                stops.find((s) => s.id === selected)?.address
+              )
+            }
+            fullWidth
+          >
+            <MenuItem disabled value={0}>
+              <em>Select Stop</em>
+            </MenuItem>
+            {stops.map((s) => (
+              <MenuItem key={s.id} value={s.id}>
+                {s.address}
               </MenuItem>
-              {stops
-                .filter(
-                  (s) => !selectedStops.some((stop) => stop.id === s.id) || s.id === stop.id
-                )
-                .map((filteredStop) => (
-                  <MenuItem key={filteredStop.id} value={filteredStop.id}>
-                    {filteredStop.id}. {filteredStop.address}
-                  </MenuItem>
-                ))}
-            </Select>
-            {errors.stops && stop.id === 0 && (
-              <Typography
-                variant="caption"
-                color="error"
-                sx={{ marginTop: '4px' }}
-              >
-                Stop is required
-              </Typography>
-            )}
-          </FormControl>
+            ))}
+          </Select>
           <Button
-            variant="outlined"
+            variant="contained"
+            color="secondary"
             onClick={() => handleDeleteStop(index)}
-            color="error"
+            sx={{ marginTop: '8px' }}
           >
-            Delete
+            Remove Stop
           </Button>
-          <Button
-            onClick={() => addNewStopField(index)}
-            sx={{
-              fontSize: '24px',
-              color: '#000000',
-              marginLeft: '8px'
-            }}
-          >
-            +
-          </Button>
-        </Box>
+        </FormControl>
       ))}
-      <Button
-        onClick={() => addNewStopField(null)}
-        sx={{
-          fontSize: '30px',
-          color: '#000000',
-          marginBottom: '8px'
-        }}
-      >
-        +
+      <Button variant="contained" color="primary" onClick={addNewStopField} sx={{ marginBottom: '16px' }}>
+        Add Stop
       </Button>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          marginBottom: '8px'
-        }}
-      >
-        <Button
-          onClick={handleAddOrUpdateRoute}
-          sx={{
-            backgroundColor: '#000000',
-            color: '#ffffff',
-            marginRight: '8px'
-          }}
-        >
-          {editId ? 'Update Route' : 'Add Route'}
-        </Button>
-        <Button
-          onClick={handleCancel}
-          sx={{
-            backgroundColor: '#000000',
-            color: '#ffffff'
-          }}
-        >
+      {errors.stops && (
+        <Typography color="error" variant="body2">
+          At least one valid stop is required
+        </Typography>
+      )}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="contained" onClick={handleCancel} sx={{ marginRight: '8px' }}>
           Cancel
+        </Button>
+        <Button variant="contained" color="primary" onClick={handleAddOrUpdateRoute}>
+          {editId ? 'Update Route' : 'Add Route'}
         </Button>
       </Box>
     </Box>
@@ -264,3 +211,4 @@ const AddRoute: React.FC = () => {
 };
 
 export default AddRoute;
+

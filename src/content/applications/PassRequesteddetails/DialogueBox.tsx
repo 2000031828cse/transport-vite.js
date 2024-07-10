@@ -1,12 +1,15 @@
-import { FC, useState, useEffect } from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import React, { FC, useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  SelectChangeEvent
+} from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { PassOrderStatus } from 'src/models/pass_request';
 import { useStops } from '../Stops/StopsContext';
@@ -74,9 +77,7 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
     setInputValue(event.target.value);
   };
 
-  const handleDetailsChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleDetailsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDetails(event.target.value);
   };
 
@@ -90,10 +91,12 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
 
   const handleApprove = () => {
     onSave('completed', selectedRoute, selectedStop, details);
+    onClose();
   };
 
   const handleReject = () => {
     onSave('rejected', selectedRoute, selectedStop, details);
+    onClose();
   };
 
   return (
@@ -110,10 +113,11 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
           value={inputValue}
           onChange={handleInputChange}
         />
-        <textarea
+        <TextField
           className={classes.textArea}
-          placeholder="REASON"
+          multiline
           rows={3}
+          placeholder="REASON"
           value={details}
           onChange={handleDetailsChange}
         />
@@ -151,11 +155,14 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
         </Select>
       </DialogContent>
       <DialogActions>
+        <Button onClick={handleReject} color="error">
+          Reject
+        </Button>
         <Button onClick={handleApprove} color="primary">
           Approve
         </Button>
-        <Button onClick={handleReject} color="primary">
-          Reject
+        <Button onClick={onClose} color="primary">
+          Cancel
         </Button>
       </DialogActions>
     </Dialog>

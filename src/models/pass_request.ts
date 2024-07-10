@@ -1,4 +1,5 @@
-export type PassOrderStatus = 'completed' | 'pending' | 'rejected' | 'active';
+export type PassOrderStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'active';
+
 
 export interface PassOrder {
   student: any;

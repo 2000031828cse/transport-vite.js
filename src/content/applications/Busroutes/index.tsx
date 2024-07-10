@@ -239,7 +239,7 @@
 
 // export default BusRoutes;
 
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import {
   Card,
   Table,
@@ -252,13 +252,13 @@ import {
   Box,
   Button,
   IconButton,
-  Container
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import { useNavigate } from 'react-router-dom';
-import { useBusRoutes } from './BusRoutesContext';
+  Container,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { useNavigate } from "react-router-dom";
+import { useBusRoutes } from "./BusRoutesContext";
 
 const BusRoutes: React.FC = () => {
   const navigate = useNavigate();
@@ -269,7 +269,7 @@ const BusRoutes: React.FC = () => {
   }, [fetchRoutes]);
 
   const handleAddRouteClick = () => {
-    navigate('/management/addroutes');
+    navigate("/management/addroutes");
   };
 
   const handleEditRoute = (route) => {
@@ -286,27 +286,27 @@ const BusRoutes: React.FC = () => {
       sx={{
         mt: 4,
         p: 2,
-        border: '1px solid #ccc',
-        backgroundColor: '#ffffff',
-        color: '#000000',
-        marginBottom: '16px'
+        border: "1px solid #ccc",
+        backgroundColor: "#ffffff",
+        color: "#000000",
+        marginBottom: "16px",
       }}
     >
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '16px'
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "16px",
         }}
       >
         <Typography variant="h6">Bus Routes</Typography>
         <Button
           variant="contained"
           sx={{
-            backgroundColor: '#000000',
-            color: '#ffffff',
-            '&:hover': { backgroundColor: '#333333' }
+            backgroundColor: "#000000",
+            color: "#ffffff",
+            "&:hover": { backgroundColor: "#333333" },
           }}
           startIcon={<AddIcon />}
           onClick={handleAddRouteClick}
@@ -317,26 +317,31 @@ const BusRoutes: React.FC = () => {
       <TableContainer>
         <Table sx={{ minWidth: 650 }} aria-label="bus routes table">
           <TableHead>
-            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell sx={{ color: '#000000' }}>S.No</TableCell>
-              <TableCell sx={{ color: '#000000' }}>Route Name</TableCell>
-              <TableCell sx={{ color: '#000000' }}>Timings</TableCell>
-              <TableCell sx={{ color: '#000000' }}>Stops</TableCell>
-              <TableCell sx={{ color: '#000000' }}>Actions</TableCell>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell sx={{ color: "#000000" }}>S.No</TableCell>
+              <TableCell sx={{ color: "#000000" }}>Route Name</TableCell>
+              <TableCell sx={{ color: "#000000" }}>Timings</TableCell>
+              <TableCell sx={{ color: "#000000" }}>Stops</TableCell>
+              <TableCell sx={{ color: "#000000" }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {routes.map((route) => (
               <TableRow key={route.id}>
-                <TableCell sx={{ color: '#000000' }}>{route.id}</TableCell>
-                <TableCell sx={{ color: '#000000' }}>{route.name}</TableCell>
-                <TableCell sx={{ color: '#000000' }}>{route.timings}</TableCell>
-                <TableCell sx={{ color: '#000000' }}>
-                  {route.stops.map((stop, index) => (
-                    <span key={index}>
-                      {stop.address} {index < route.stops.length - 1 ? ' - ' : ''}
-                    </span>
-                  ))}
+                <TableCell sx={{ color: "#000000" }}>{route.id}</TableCell>
+                <TableCell sx={{ color: "#000000" }}>{route.name}</TableCell>
+                <TableCell sx={{ color: "#000000" }}>{route.timings}</TableCell>
+                <TableCell sx={{ color: "#000000" }}>
+                  {route && route.stops && Array.isArray(route.stops) ? (
+                    route.stops.map((stop, index) => (
+                      <span key={index}>
+                        {stop.address}{" "}
+                        {index < route.stops.length - 1 ? " - " : ""}
+                      </span>
+                    ))
+                  ) : (
+                    <span>No stops available</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <IconButton
@@ -362,4 +367,3 @@ const BusRoutes: React.FC = () => {
 };
 
 export default BusRoutes;
-

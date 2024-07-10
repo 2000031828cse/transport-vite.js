@@ -223,6 +223,10 @@ const AddStop: React.FC = () => {
     navigate("/management/stops");
   };
 
+  const handleCancel = () => {
+    navigate("/management/stops");
+  };
+
   return (
     <Container
       maxWidth="sm"
@@ -284,15 +288,23 @@ const AddStop: React.FC = () => {
           error={Boolean(errors.landmark)}
           helperText={errors.landmark}
         />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          sx={{ mt: 3, mb: 2 }}
-        >
-          Add Stop
-        </Button>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+          <Button
+            type="button"
+            variant="outlined"
+            color="secondary"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+          >
+            Add Stop
+          </Button>
+        </Box>
       </Box>
     </Container>
   );

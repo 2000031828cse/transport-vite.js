@@ -7,7 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { CssBaseline } from '@mui/material';
 import ThemeProvider from './theme/ThemeProvider'; // Adjust import path as needed
 import { UserProvider } from './content/applications/create-user/UserContext';
-
+import { StopsProvider } from './content/applications/Stops/StopsContext';
 function App() {
   const content = useRoutes(router);
 
@@ -16,9 +16,11 @@ function App() {
       {/* <LocalizationProvider dateAdapter={AdapterDateFns}> */}
         <CssBaseline />
         <Suspense fallback={<div>Loading...</div>}>
+        <StopsProvider>
           <UserProvider>
             {content}
           </UserProvider>
+          </StopsProvider>
         </Suspense>
       {/* </LocalizationProvider> */}
     </ThemeProvider>

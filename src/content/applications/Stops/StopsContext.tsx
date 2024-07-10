@@ -179,19 +179,25 @@ export const StopsProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [stops, setStops] = useState<Stop[]>([]);
   const apiUrl = '/v2/api/transport'; // Replace with your actual API URL
   const otpt = sessionStorage.getItem('otptoken');
+
   useEffect(() => {
-    fetch(`${apiUrl}/stops`)
+    fetch(`${apiUrl}/stops`, {
+      headers: {
+        'Authorization': `Bearer ${otpt}`,
+      },
+    })
       .then(response => response.json())
       .then(data => setStops(data))
       .catch(error => console.error('Error fetching stops:', error));
-  }, [apiUrl]);
+  }, [apiUrl, otpt]);
 
   const addStop = (stop: Omit<Stop, "id">) => {
     fetch(`${apiUrl}/stops`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json',
-         'Authorization': `Bearer ${otpt}`
-       },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${otpt}`,
+      },
       body: JSON.stringify(stop),
     })
       .then(response => response.json())
@@ -204,8 +210,14 @@ export const StopsProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const deleteStop = (id: number) => {
     fetch(`${apiUrl}/stops/${id}`, {
       method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${otpt}`,
+      },
     })
-      .then(() => {
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to delete stop');
+        }
         setStops(prevStops => prevStops.filter(stop => stop.id !== id));
       })
       .catch(error => console.error('Error deleting stop:', error));

@@ -176,9 +176,13 @@ export const BusRoutesProvider: React.FC<{ children: ReactNode }> = ({ children 
         'Authorization': `Bearer ${otpt}`,
       }
     })
+      
       .then(response => response.json())
+      
       .then(data => setRoutes(data))
+      
       .catch(error => console.error('Error fetching routes:', error));
+      
   };
 
   useEffect(() => {

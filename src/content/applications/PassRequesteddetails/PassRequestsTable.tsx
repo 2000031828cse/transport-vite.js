@@ -914,6 +914,382 @@
 // export default PassRequestsTable;
 
 
+// import React, { FC, useState, ChangeEvent } from 'react';
+// import {
+//   Tooltip,
+//   Divider,
+//   Box,
+//   FormControl,
+//   InputLabel,
+//   Card,
+//   IconButton,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TablePagination,
+//   TableRow,
+//   TableContainer,
+//   Select,
+//   MenuItem,
+//   Typography,
+//   useTheme,
+//   CardHeader,
+//   SelectChangeEvent
+// } from '@mui/material';
+// import Label from 'src/components/Label';
+// import { PassOrder, PassOrderStatus } from 'src/models/pass_request';
+// import CheckIcon from '@mui/icons-material/Check';
+// import ApprovalDialog from './DialogueBox';
+
+// interface PassRequestsTableProps {
+//   className?: string;
+//   PassOrders: PassOrder[];
+// }
+
+// interface Filters {
+//   status?: PassOrderStatus | null;
+//   paymentStatus?: 'paid' | 'not paid' | null;
+// }
+
+// const getStatusLabel = (status: PassOrderStatus): JSX.Element => {
+//   const map = {
+//     rejected: {
+//       text: 'Rejected',
+//       color: 'error'
+//     },
+//     completed: {
+//       text: 'Approved',
+//       color: 'info'
+//     },
+//     pending: {
+//       text: 'Pending',
+//       color: 'warning'
+//     },
+//     active: {
+//       text: 'Active',
+//       color: 'success'
+//     }
+//   };
+
+//   const { text, color }: any = map[status];
+//   return <Label color={color}>{text}</Label>;
+// };
+
+// const applyFilters = (PassOrders: PassOrder[], filters: Filters): PassOrder[] => {
+//   return PassOrders.filter((order) => {
+//     let matches = true;
+
+//     if (filters.status && order.status !== filters.status) {
+//       matches = false;
+//     }
+
+//     if (filters.paymentStatus && order.paymentStatus !== filters.paymentStatus) {
+//       matches = false;
+//     }
+
+//     return matches;
+//   });
+// };
+
+// const applyPagination = (PassOrders: PassOrder[], page: number, limit: number): PassOrder[] => {
+//   return PassOrders.slice(page * limit, page * limit + limit);
+// };
+
+// const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
+//   const [selectedPassOrders, setSelectedPassOrders] = useState<string[]>([]);
+//   const [page, setPage] = useState<number>(0);
+//   const [limit, setLimit] = useState<number>(5);
+//   const [filters, setFilters] = useState<Filters>({
+//     status: null,
+//     paymentStatus: null
+//   });
+//   const [orders, setOrders] = useState<PassOrder[]>(PassOrders);
+
+//   // State for managing dialog
+//   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+//   const [currentOrder, setCurrentOrder] = useState<PassOrder | null>(null);
+
+//   // Function to handle opening and closing dialog
+//   const handleDialogOpen = (order: PassOrder) => {
+//     setCurrentOrder(order);
+//     setDialogOpen(true);
+//   };
+
+//   const handleDialogClose = () => {
+//     setDialogOpen(false);
+//     setCurrentOrder(null);
+//   };
+
+//   // Function to handle approval link click
+//   const handleApprovalClick = (
+//     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+//     order: PassOrder
+//   ) => {
+//     event.preventDefault();
+//     handleDialogOpen(order);
+//   };
+
+//   const handleSelectOnePassOrder = (
+//     event: ChangeEvent<HTMLInputElement>,
+//     orderId: string
+//   ): void => {
+//     if (!selectedPassOrders.includes(orderId)) {
+//       setSelectedPassOrders((prevSelected) => [...prevSelected, orderId]);
+//     } else {
+//       setSelectedPassOrders((prevSelected) =>
+//         prevSelected.filter((id) => id !== orderId)
+//       );
+//     }
+//   };
+
+//   const handlePageChange = (event: any, newPage: number): void => {
+//     setPage(newPage);
+//   };
+
+//   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
+//     setLimit(parseInt(event.target.value));
+//   };
+
+//   const handlePaymentStatusChangeForOrder = async (
+//     event: SelectChangeEvent<string>,
+//     orderId: string
+//   ): Promise<void> => {
+//     const newStatus = event.target.value as 'paid' | 'not paid';
+//     try {
+//       const response = await fetch(`/api/pass-orders/${orderId}/payment-status`, {
+//         method: 'PATCH',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ paymentStatus: newStatus })
+//       });
+
+//       if (!response.ok) {
+//         throw new Error('Network response was not ok');
+//       }
+
+//       const updatedOrder: PassOrder = await response.json();
+//       setOrders((prevOrders) =>
+//         prevOrders.map((order) =>
+//           order.id === updatedOrder.id ? updatedOrder : order
+//         )
+//       );
+//     } catch (err) {
+//       console.error('Failed to update payment status:', err);
+//     }
+//   };
+
+//   const handleApprovalUpdate = async (status: PassOrderStatus) => {
+//     if (currentOrder) {
+//       try {
+//         const response = await fetch(`/api/pass-orders/${currentOrder.id}/approval-status`, {
+//           method: 'PATCH',
+//           headers: {
+//             'Content-Type': 'application/json'
+//           },
+//           body: JSON.stringify({ status })
+//         });
+
+//         if (!response.ok) {
+//           throw new Error('Network response was not ok');
+//         }
+
+//         const updatedOrder: PassOrder = await response.json();
+//         setOrders((prevOrders) =>
+//           prevOrders.map((order) =>
+//             order.id === updatedOrder.id ? updatedOrder : order
+//           )
+//         );
+//         handleDialogClose();
+//       } catch (err) {
+//         console.error('Failed to update order:', err);
+//       }
+//     }
+//   };
+
+//   const filteredPassOrders = applyFilters(orders, filters);
+//   const paginatedPassOrders = applyPagination(filteredPassOrders, page, limit);
+//   const selectedSomePassOrders =
+//     selectedPassOrders.length > 0 &&
+//     selectedPassOrders.length < PassOrders.length;
+//   const selectedAllPassOrders = selectedPassOrders.length === PassOrders.length;
+//   const theme = useTheme();
+
+//   const statusOptions = [
+//     {
+//       id: 'all',
+//       name: 'All'
+//     },
+//     {
+//       id: 'completed',
+//       name: 'Approved'
+//     },
+//     {
+//       id: 'pending',
+//       name: 'Pending'
+//     },
+//     {
+//       id: 'rejected',
+//       name: 'Rejected'
+//     },
+//     {
+//       id: 'active',
+//       name: 'Active'
+//     }
+//   ];
+
+//   const handleStatusChange = (event: SelectChangeEvent<string>): void => {
+//     let value = null;
+
+//     if (event.target.value !== 'all') {
+//       value = event.target.value as PassOrderStatus;
+//     }
+
+//     setFilters((prevFilters) => ({
+//       ...prevFilters,
+//       status: value
+//     }));
+//   };
+
+//   const handlePaymentStatusChange = (
+//     event: SelectChangeEvent<string>
+//   ): void => {
+//     let value = null;
+
+//     if (event.target.value !== 'all') {
+//       value = event.target.value as 'paid' | 'not paid';
+//     }
+
+//     setFilters((prevFilters) => ({
+//       ...prevFilters,
+//       paymentStatus: value
+//     }));
+//   };
+
+//   return (
+//     <Card>
+//       <CardHeader
+//         action={
+//           <Box display="flex" gap={2}>
+//             <FormControl fullWidth variant="outlined">
+//               <InputLabel>Status</InputLabel>
+//               <Select
+//                 value={filters.status || 'all'}
+//                 onChange={handleStatusChange}
+//                 label="Status"
+//                 autoWidth
+//               >
+//                 {statusOptions.map((statusOption) => (
+//                   <MenuItem key={statusOption.id} value={statusOption.id}>
+//                     {statusOption.name}
+//                   </MenuItem>
+//                 ))}
+//               </Select>
+//             </FormControl>
+//           </Box>
+//         }
+//         title={
+//           <Typography variant="h5" align="center">
+//             Recent Orders
+//           </Typography>
+//         }
+//       />
+//       <Divider />
+//       <TableContainer>
+//         <Table>
+//           <TableHead>
+//             <TableRow>
+//               <TableCell>Student ID</TableCell>
+//               <TableCell>Name</TableCell>
+//               <TableCell>Stop Request</TableCell>
+//               <TableCell>Payment Status</TableCell>
+//               <TableCell>Actions</TableCell>
+//               <TableCell align="left">Approval Status</TableCell>
+//               <TableCell>Update</TableCell>
+//             </TableRow>
+//           </TableHead>
+//           <TableBody>
+//             {paginatedPassOrders.map((order) => (
+//               <TableRow key={order.id}>
+//                 <TableCell>{order.userId}</TableCell>
+//                 <TableCell>{order.student?.name }</TableCell>
+//                 <TableCell>{order.assignedStop }</TableCell>
+//                 <TableCell align="left">
+//                   <Select
+//                     value={order.paymentStatus}
+//                     onChange={(event: SelectChangeEvent<string>) =>
+//                       handlePaymentStatusChangeForOrder(event, order.id)
+//                     }
+//                   >
+//                     <MenuItem value="paid">Paid</MenuItem>
+//                     <MenuItem value="not paid">Not Paid</MenuItem>
+//                   </Select>
+//                 </TableCell>
+//                 <TableCell align="left">
+//                   <Typography variant="body1" color="text.primary">
+//                   <a
+//                       href="#"
+//                       onClick={(event) => handleApprovalClick(event, order)}
+//                     >
+//                       Approval
+//                     </a>
+//                   </Typography>
+//                 </TableCell>
+//                 <TableCell align="center">
+//                   {getStatusLabel(order.status)}
+//                 </TableCell>
+//                 <TableCell align="center">
+//                   <Tooltip title="Update Status" arrow>
+//                     <IconButton
+//                       sx={{
+//                         '&:hover': {
+//                           background: theme.colors.primary.lighter
+//                         },
+//                         color: theme.palette.primary.main
+//                       }}
+//                       color="inherit"
+//                       size="small"
+//                       onClick={() => {
+//                         if (order.status === 'completed' && order.paymentStatus === 'paid') {
+//                           handleApprovalUpdate('active');
+//                         } else if (order.status === 'pending') {
+//                           handleApprovalUpdate('completed');
+//                         }
+//                       }}
+//                     >
+//                       <CheckIcon fontSize="small" />
+//                     </IconButton>
+//                   </Tooltip>
+//                 </TableCell>
+//               </TableRow>
+//             ))}
+//           </TableBody>
+//         </Table>
+//       </TableContainer>
+//       <Box p={2}>
+//         <TablePagination
+//           component="div"
+//           count={filteredPassOrders.length}
+//           onPageChange={handlePageChange}
+//           onRowsPerPageChange={handleLimitChange}
+//           page={page}
+//           rowsPerPage={limit}
+//           rowsPerPageOptions={[5, 10, 25, 30]}
+//         />
+//       </Box>
+
+//       <ApprovalDialog
+//         open={dialogOpen}
+//         onClose={handleDialogClose}
+//         onSave={handleApprovalUpdate}
+//       />
+//     </Card>
+//   );
+// };
+
+// export default PassRequestsTable; night
+
 import React, { FC, useState, ChangeEvent } from 'react';
 import {
   Tooltip,
@@ -953,7 +1329,7 @@ interface Filters {
 }
 
 const getStatusLabel = (status: PassOrderStatus): JSX.Element => {
-  const map = {
+  const statusMap = {
     rejected: {
       text: 'Rejected',
       color: 'error'
@@ -972,7 +1348,7 @@ const getStatusLabel = (status: PassOrderStatus): JSX.Element => {
     }
   };
 
-  const { text, color }: any = map[status];
+  const { text, color } = statusMap[status];
   return <Label color={color}>{text}</Label>;
 };
 
@@ -984,7 +1360,7 @@ const applyFilters = (PassOrders: PassOrder[], filters: Filters): PassOrder[] =>
       matches = false;
     }
 
-    if (filters.paymentStatus && order.paymentStatus !== filters.paymentStatus) {
+    if (filters.paymentStatus && order.feeStatus !== (filters.paymentStatus === 'paid')) {
       matches = false;
     }
 
@@ -997,7 +1373,7 @@ const applyPagination = (PassOrders: PassOrder[], page: number, limit: number): 
 };
 
 const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
-  const [selectedPassOrders, setSelectedPassOrders] = useState<string[]>([]);
+  const [selectedPassOrders, setSelectedPassOrders] = useState<number[]>([]);
   const [page, setPage] = useState<number>(0);
   const [limit, setLimit] = useState<number>(5);
   const [filters, setFilters] = useState<Filters>({
@@ -1032,7 +1408,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
 
   const handleSelectOnePassOrder = (
     event: ChangeEvent<HTMLInputElement>,
-    orderId: string
+    orderId: number
   ): void => {
     if (!selectedPassOrders.includes(orderId)) {
       setSelectedPassOrders((prevSelected) => [...prevSelected, orderId]);
@@ -1048,27 +1424,27 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
   };
 
   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value));
+    setLimit(parseInt(event.target.value, 10));
   };
 
   const handlePaymentStatusChangeForOrder = async (
     event: SelectChangeEvent<string>,
-    orderId: string
+    orderId: number // Changed type to number
   ): Promise<void> => {
     const newStatus = event.target.value as 'paid' | 'not paid';
     try {
-      const response = await fetch(`/api/pass-orders/${orderId}/payment-status`, {
+      const response = await fetch(`/api/pass-orders/${orderId}/feeStatus`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ paymentStatus: newStatus })
       });
-
+  
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
+  
       const updatedOrder: PassOrder = await response.json();
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -1079,11 +1455,12 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
       console.error('Failed to update payment status:', err);
     }
   };
+  
 
   const handleApprovalUpdate = async (status: PassOrderStatus) => {
     if (currentOrder) {
       try {
-        const response = await fetch(`/api/pass-orders/${currentOrder.id}/approval-status`, {
+        const response = await fetch(`/v2/api/transport/${currentOrder.id}/status`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json'
@@ -1117,34 +1494,15 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
   const theme = useTheme();
 
   const statusOptions = [
-    {
-      id: 'all',
-      name: 'All'
-    },
-    {
-      id: 'completed',
-      name: 'Approved'
-    },
-    {
-      id: 'pending',
-      name: 'Pending'
-    },
-    {
-      id: 'rejected',
-      name: 'Rejected'
-    },
-    {
-      id: 'active',
-      name: 'Active'
-    }
+    { id: 'all', name: 'All' },
+    { id: 'completed', name: 'Approved' },
+    { id: 'pending', name: 'Pending' },
+    { id: 'rejected', name: 'Rejected' },
+    { id: 'active', name: 'Active' }
   ];
 
   const handleStatusChange = (event: SelectChangeEvent<string>): void => {
-    let value = null;
-
-    if (event.target.value !== 'all') {
-      value = event.target.value as PassOrderStatus;
-    }
+    const value = event.target.value !== 'all' ? (event.target.value as PassOrderStatus) : null;
 
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -1153,13 +1511,9 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
   };
 
   const handlePaymentStatusChange = (
-    event: SelectChangeEvent<string>
+    event: SelectChangeEvent<'paid' | 'not paid'>
   ): void => {
-    let value = null;
-
-    if (event.target.value !== 'all') {
-      value = event.target.value as 'paid' | 'not paid';
-    }
+    const value = event.target.value !== 'all' ? (event.target.value as 'paid' | 'not paid') : null;
 
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -1187,11 +1541,24 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                 ))}
               </Select>
             </FormControl>
+            <FormControl fullWidth variant="outlined">
+              <InputLabel>Payment Status</InputLabel>
+              <Select
+                value={filters.paymentStatus || 'all'}
+                onChange={handlePaymentStatusChange}
+                label="Payment Status"
+                autoWidth
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="paid">Paid</MenuItem>
+                <MenuItem value="not paid">Not Paid</MenuItem>
+              </Select>
+            </FormControl>
           </Box>
         }
         title={
           <Typography variant="h5" align="center">
-            Recent Orders
+            Bus Pass Requests
           </Typography>
         }
       />
@@ -1200,71 +1567,74 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Student ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Stop Request</TableCell>
+              <TableCell>Bus Pass ID</TableCell>
+              <TableCell>User ID</TableCell>
+              <TableCell>Assigned Stop</TableCell>
+              <TableCell>Route Name</TableCell>
               <TableCell>Payment Status</TableCell>
+              <TableCell>Approval Status</TableCell>
               <TableCell>Actions</TableCell>
-              <TableCell align="left">Approval Status</TableCell>
               <TableCell>Update</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedPassOrders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell>{order.userId}</TableCell>
-                <TableCell>{order.student?.name }</TableCell>
-                <TableCell>{order.assignedStop }</TableCell>
-                <TableCell align="left">
-                  <Select
-                    value={order.paymentStatus}
-                    onChange={(event: SelectChangeEvent<string>) =>
-                      handlePaymentStatusChangeForOrder(event, order.id)
-                    }
-                  >
-                    <MenuItem value="paid">Paid</MenuItem>
-                    <MenuItem value="not paid">Not Paid</MenuItem>
-                  </Select>
-                </TableCell>
-                <TableCell align="left">
-                  <Typography variant="body1" color="text.primary">
-                  <a
-                      href="#"
-                      onClick={(event) => handleApprovalClick(event, order)}
-                    >
-                      Approval
-                    </a>
-                  </Typography>
-                </TableCell>
-                <TableCell align="center">
-                  {getStatusLabel(order.status)}
-                </TableCell>
-                <TableCell align="center">
-                  <Tooltip title="Update Status" arrow>
-                    <IconButton
-                      sx={{
-                        '&:hover': {
-                          background: theme.colors.primary.lighter
-                        },
-                        color: theme.palette.primary.main
-                      }}
-                      color="inherit"
-                      size="small"
-                      onClick={() => {
-                        if (order.status === 'completed' && order.paymentStatus === 'paid') {
-                          handleApprovalUpdate('active');
-                        } else if (order.status === 'pending') {
-                          handleApprovalUpdate('completed');
-                        }
-                      }}
-                    >
-                      <CheckIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+  {paginatedPassOrders.map((order) => (
+    <TableRow key={order.id}>
+      <TableCell>{order.userId}</TableCell>
+      <TableCell>{order.student?.name}</TableCell>
+      <TableCell>{order.assignedStop}</TableCell>
+      <TableCell align="left">
+        <Select
+          value={order.paymentStatus}
+          onChange={(event: SelectChangeEvent<string>) =>
+            handlePaymentStatusChangeForOrder(event, order.id) // Ensure order.id is a string
+          }
+        >
+          <MenuItem value="paid">Paid</MenuItem>
+          <MenuItem value="not paid">Not Paid</MenuItem>
+        </Select>
+      </TableCell>
+      <TableCell align="left">
+        <Typography variant="body1" color="text.primary">
+          <a
+            href="#"
+            onClick={(event) => handleApprovalClick(event as React.MouseEvent<HTMLAnchorElement, MouseEvent>, order)}
+          >
+            Approval
+          </a>
+        </Typography>
+      </TableCell>
+      <TableCell align="center">
+        {getStatusLabel(order.status)}
+      </TableCell>
+      <TableCell align="center">
+        <Tooltip title="Update Status" arrow>
+          <IconButton
+            sx={{
+              '&:hover': {
+                background: theme.colors.primary.lighter
+              },
+              color: theme.palette.primary.main
+            }}
+            color="inherit"
+            size="small"
+            onClick={() => {
+              if (order.status === 'completed' && order.paymentStatus === 'paid') {
+                handleApprovalUpdate('active');
+              } else if (order.status === 'pending') {
+                handleApprovalUpdate('completed');
+              }
+            }}
+          >
+            <CheckIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
+
         </Table>
       </TableContainer>
       <Box p={2}>
@@ -1278,16 +1648,18 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
           rowsPerPageOptions={[5, 10, 25, 30]}
         />
       </Box>
-
-      <ApprovalDialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        onSave={handleApprovalUpdate}
-      />
+      {currentOrder && (
+        <ApprovalDialog
+          open={dialogOpen}
+          onClose={handleDialogClose}
+          onSave={handleApprovalUpdate}
+        />
+      )}
     </Card>
   );
 };
 
 export default PassRequestsTable;
+
 
                    

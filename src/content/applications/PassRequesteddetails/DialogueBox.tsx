@@ -10,16 +10,11 @@ import MenuItem from '@mui/material/MenuItem';
 import { makeStyles } from '@mui/styles';
 import { PassOrderStatus } from 'src/models/pass_request';
 import { useStops } from '../Stops/StopsContext';
-import { useBusRoutes } from '../Busroutes/BusRoutesContext';
+
 interface ApprovalDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (
-    status: PassOrderStatus,
-    route: string,
-    stop: string,
-    details: string
-  ) => void;
+  onSave: (status: PassOrderStatus, route: string, stop: string, details: string) => void;
 }
 
 const useStyles = makeStyles({
@@ -41,17 +36,39 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
   const [selectedRoute, setSelectedRoute] = useState<string>('');
   const [selectedStop, setSelectedStop] = useState<string>('');
   const { stops } = useStops();
-  const { getRoutesForStop } = useBusRoutes();
   const [filteredRoutes, setFilteredRoutes] = useState<string[]>([]);
 
   useEffect(() => {
+    const fetchRoutesForStop = async (stopId: string) => {
+      try {
+        const response = await fetch(`/v2/api/transport/routes?stopId=${stopId}`);
+
+        if (!response.ok) {
+          throw new Error(`Error fetching routes: ${response.statusText}`);
+        }
+
+        const routesData = await response.json();
+
+        // Filter routes that contain the selected stop
+        const routesWithStop = routesData.filter((route: any) =>
+          route.stops.some((stop: any) => stop.id === parseInt(stopId))
+        );
+
+        // Extract the route names from the filtered routes
+        const routeNames = routesWithStop.map((route: any) => route.name);
+        setFilteredRoutes(routeNames);
+      } catch (error) {
+        console.error('Error fetching routes:', error);
+      }
+    };
+
     if (selectedStop) {
-      const routes = getRoutesForStop(selectedStop).map(
-        (route) => route.routeName
-      );
-      setFilteredRoutes(routes);
+      fetchRoutesForStop(selectedStop);
+    } else {
+      // Clear the routes if no stop is selected
+      setFilteredRoutes([]);
     }
-  }, [selectedStop, getRoutesForStop]);
+  }, [selectedStop]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
@@ -101,7 +118,7 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
           onChange={handleDetailsChange}
         />
         <Select
-          value={selectedStop}
+          value={selectedStop || ''}
           onChange={handleStopChange}
           displayEmpty
           fullWidth
@@ -111,13 +128,13 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
             Select Stop
           </MenuItem>
           {stops.map((stop) => (
-            <MenuItem key={stop.name} value={stop.name}>
-              {stop.name}
+            <MenuItem key={stop.id} value={stop.id}>
+              {stop.address}
             </MenuItem>
           ))}
         </Select>
         <Select
-          value={selectedRoute}
+          value={selectedRoute || ''}
           onChange={handleRouteChange}
           displayEmpty
           fullWidth
@@ -126,8 +143,8 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({ open, onClose, onSave }) => {
           <MenuItem value="" disabled>
             Select Route
           </MenuItem>
-          {filteredRoutes.map((route) => (
-            <MenuItem key={route} value={route}>
+          {filteredRoutes.map((route, index) => (
+            <MenuItem key={index} value={route}>
               {route}
             </MenuItem>
           ))}

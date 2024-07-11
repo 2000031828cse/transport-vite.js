@@ -1,32 +1,93 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Typography,
   Paper,
   Box,
   Grid,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 
-// Define the interface for bus pass details
-interface BusPassDetailsProps {
-  studentName: string;
-  passId: string;
-  approvalStatus: string;
-  routeName: string;
-  stopName: string;
-  renewalDate: string;
-  validity: string;
+// Define the structure of the bus pass details based on API response
+interface BusPassDetails {
+  student: {
+    name: string;
+  };
+  buspassId: string | null;
+  status: 'pending' | 'approved' | 'rejected' | 'active';
+  assignedStop: string | null;
+  requestStopName: string | null;
+  renewalStatus: boolean;
+  feeStatus: boolean;
+  routeId: number | null;
+  routeName: string | null;
 }
 
-const BusPassDetails: React.FC<BusPassDetailsProps> = ({
-  studentName,
-  passId,
-  approvalStatus,
-  routeName,
-  stopName,
-  renewalDate,
-  validity,
-}) => {
+// Define the UserProfile component
+const UserProfile: React.FC = () => {
+  const [busPassDetails, setBusPassDetails] = useState<BusPassDetails | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Replace with the actual bus pass ID or fetch it as needed
+  const buspassId = 1;
+  const otpt = sessionStorage.getItem("otptoken");
+
+  useEffect(() => {
+    const fetchBusPassDetails = async () => {
+      try {
+        const response = await fetch(
+          `/v2/api/transport/buspasses/${buspassId}`, // Correct URL with base
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${otpt}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error fetching bus pass details: ${response.statusText}`);
+        }
+
+        const data: BusPassDetails = await response.json();
+        setBusPassDetails(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBusPassDetails();
+  }, [buspassId, otpt]);
+
+  if (loading) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 4 }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 4 }}>
+        <Alert severity="error">{error}</Alert>
+      </Container>
+    );
+  }
+
+  if (!busPassDetails) {
+    return (
+      <Container maxWidth="sm" sx={{ mt: 4 }}>
+        <Typography variant="h6">No bus pass details available</Typography>
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 3 }}>
@@ -41,7 +102,7 @@ const BusPassDetails: React.FC<BusPassDetailsProps> = ({
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">{studentName}</Typography>
+              <Typography variant="body1">{busPassDetails.student.name}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" color="textSecondary">
@@ -49,7 +110,7 @@ const BusPassDetails: React.FC<BusPassDetailsProps> = ({
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">{passId}</Typography>
+              <Typography variant="body1">{busPassDetails.buspassId || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" color="textSecondary">
@@ -57,7 +118,7 @@ const BusPassDetails: React.FC<BusPassDetailsProps> = ({
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">{approvalStatus}</Typography>
+              <Typography variant="body1">{busPassDetails.status}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" color="textSecondary">
@@ -65,7 +126,7 @@ const BusPassDetails: React.FC<BusPassDetailsProps> = ({
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">{routeName}</Typography>
+              <Typography variant="body1">{busPassDetails.routeName || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" color="textSecondary">
@@ -73,23 +134,23 @@ const BusPassDetails: React.FC<BusPassDetailsProps> = ({
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">{stopName}</Typography>
+              <Typography variant="body1">{busPassDetails.assignedStop || 'N/A'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" color="textSecondary">
-                Renewal Date:
+                Renewal Status:
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">{renewalDate}</Typography>
+              <Typography variant="body1">{busPassDetails.renewalStatus ? 'Renewed' : 'Not Renewed'}</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="subtitle1" color="textSecondary">
-                Validity:
+                Fee Status:
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <Typography variant="body1">{validity}</Typography>
+              <Typography variant="body1">{busPassDetails.feeStatus ? 'Paid' : 'Not Paid'}</Typography>
             </Grid>
           </Grid>
         </Box>
@@ -98,19 +159,4 @@ const BusPassDetails: React.FC<BusPassDetailsProps> = ({
   );
 };
 
-// Example usage of the component
-const PassDetails: React.FC = () => {
-  const busPassDetails = {
-    studentName: 'John Doe',
-    passId: 'BP12345',
-    approvalStatus: 'Approved',
-    routeName: 'Route 5',
-    stopName: 'Central Park',
-    renewalDate: '2024-12-31',
-    validity: '1 Year',
-  };
-
-  return <BusPassDetails {...busPassDetails} />;
-};
-
-export default PassDetails;
+export default UserProfile;

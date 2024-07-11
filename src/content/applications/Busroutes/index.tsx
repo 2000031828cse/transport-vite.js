@@ -266,7 +266,7 @@ const BusRoutes: React.FC = () => {
 
   useEffect(() => {
     fetchRoutes(); // Fetch routes when component mounts
-  }, [fetchRoutes]);
+  }, []);
 
   const handleAddRouteClick = () => {
     navigate("/management/addroutes");

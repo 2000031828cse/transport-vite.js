@@ -1,25 +1,15 @@
-export type PassOrderStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 'active';
-
+export type PassOrderStatus = 'pending' | 'approved' | 'rejected' | 'active';
 
 export interface PassOrder {
-  student: any;
-  paymentStatus: 'paid' | 'not paid';
+  routeId: number;
+  routeName: string | null; // routeName can be null if not provided
   id: number;
-  Studentid: string;
-  Stop: string;
-  status: PassOrderStatus;
-  orderID: string;
-  actions: 'approval';
-  userId: number; // assuming userId is a number
-  termId: number;
-  stopId: number;
-  buspassId: string | null;
-  requestStopName: string;
+  userId: number; // Assuming userId is a number
+  student: {
+    name: string;
+  };
   assignedStop: string;
-  renewalStatus: boolean;
   feeStatus: boolean;
-  routeId: string | null;
-  routeName: string | null;
-  updatedAt: string;
-  createdAt: string;
+  status: PassOrderStatus;
+  buspassId: string; // Ensure buspassId is always a string
 }

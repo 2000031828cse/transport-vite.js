@@ -94,22 +94,22 @@ const UserProfile: React.FC = () => {
     }
   }, []);
 
-  const handleSave = () => {
-    if (user) {
-      const updatedUser = { ...user, name, email, phone };
-      setUser(updatedUser);
-      setIsEditing(false);
-    }
-  };
+  // const handleSave = () => {
+  //   if (user) {
+  //     const updatedUser = { ...user, name, email, phone };
+  //     setUser(updatedUser);
+  //     setIsEditing(false);
+  //   }
+  // };
 
-  const handleCancel = () => {
-    if (user) {
-      setName(user.name);
-      setEmail(user.email);
-      setPhone(user.phone);
-      setIsEditing(false);
-    }
-  };
+  // const handleCancel = () => {
+  //   if (user) {
+  //     setName(user.name);
+  //     setEmail(user.email);
+  //     setPhone(user.phone);
+  //     setIsEditing(false);
+  //   }
+  // };
 
   if (!user) {
     return <Typography>Loading...</Typography>;

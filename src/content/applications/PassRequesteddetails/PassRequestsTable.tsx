@@ -56,7 +56,11 @@ const getStatusLabel = (status: PassOrderStatus): JSX.Element => {
     active:{
       text:"active",
       color:"success"
-    }
+    },
+    inactive:{
+      text:"in-active",
+      color:"error"
+    },
 
   };
 
@@ -302,6 +306,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
     { id: "pending", name: "Pending" },
     { id: "rejected", name: "Rejected" },
     { id: "active", name: "Active" },
+    { id: "inactive", name: "In-Active" },
   ];
 
   const handleStatusChange = (event: SelectChangeEvent<string>): void => {
@@ -382,7 +387,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
               <TableCell>PAYMENT STATUS</TableCell>
               <TableCell>ACTIONS</TableCell>
               <TableCell>APPROVAL STATUS</TableCell>
-              <TableCell>UPDATE</TableCell>
+              { /*<TableCell>UPDATE</TableCell>*/}
               <TableCell>ROUTE NAME</TableCell>
             </TableRow>
           </TableHead>
@@ -424,8 +429,8 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                     </a>
                   </TableCell>
                   <TableCell>{getStatusLabel(order.status)}</TableCell>
-                  <TableCell>
-                    <Tooltip title="Update" arrow>
+                 {/* <TableCell>
+                     <Tooltip title="Update" arrow>
                       <IconButton
                         size="small"
                         color="primary"
@@ -433,8 +438,8 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                       >
                         <CheckIcon />
                       </IconButton>
-                    </Tooltip>
-                  </TableCell>
+                    </Tooltip> 
+                  </TableCell>*/}
                   <TableCell>
                     <Typography variant="body1" fontWeight="bold" noWrap>
                       {order.routeName}

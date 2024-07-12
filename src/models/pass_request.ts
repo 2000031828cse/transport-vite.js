@@ -1,4 +1,4 @@
-export type PassOrderStatus = 'pending' | 'approved' | 'rejected' | 'active';
+export type PassOrderStatus = 'pending' | 'approved' | 'rejected' | 'active' | 'inactive' ;
 
 export interface PassOrder {
   routeId: number;

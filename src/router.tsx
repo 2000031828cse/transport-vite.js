@@ -16,6 +16,7 @@ import AddStop from './content/applications/Stops/AddStop';
 import AdminPanel from './content/applications/create-user/adminpanel';
 import OtpVerification from './content/overview/Login/OtpVerification';
 import StudentTable from './content/dashboards/Admin/StudentTable';
+import UserBusRoutes from './content/dashboards/User/routes';
 
 const BusPassRequest = lazy(
   () => import('./content/applications/buspassrequest')
@@ -148,7 +149,7 @@ const routes: RouteObject[] = [
         element: (
           <PrivateRoute requiredRole="admin">
             <Suspense fallback={<div>Loading...</div>}>
-              <StudentTable />
+              <StudentTable studentRequests={undefined} />
             </Suspense>
           </PrivateRoute>
         )
@@ -189,6 +190,16 @@ const routes: RouteObject[] = [
           <PrivateRoute requiredRole="user">
             <Suspense fallback={<div>Loading...</div>}>
               <BusPassDetails />
+            </Suspense>
+          </PrivateRoute>
+        )
+      },
+      {
+        path: 'routes',
+        element: (
+          <PrivateRoute requiredRole="user">
+            <Suspense fallback={<div>Loading...</div>}>
+            <UserBusRoutes />
             </Suspense>
           </PrivateRoute>
         )

@@ -279,8 +279,9 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                   status: updatedOrder.status,
                   routeName: updatedOrder.routeName,
                   assignedStop: updatedOrder.assignedStop,
+                  requestStopName: updatedOrder.requestStopName,
                   student: updatedOrder.student || order.student,
-                  buspassId:updatedOrder.buspassId
+                  buspassId:updatedOrder.buspassId 
                 }
               : order
           )
@@ -406,7 +407,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                 {order.student?.name || "No Name"}
               </Typography>
                   </TableCell>
-                  <TableCell>{order.assignedStop}</TableCell>
+                  {order.assignedStop || order.requestStopName}
                   <TableCell>
                     <FormControl variant="outlined" fullWidth>
                       <Select

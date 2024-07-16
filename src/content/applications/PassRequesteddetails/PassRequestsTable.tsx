@@ -145,85 +145,46 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
     setLimit(parseInt(event.target.value, 10));
   };
 
+
   const handlePaymentStatusChangeForOrder = async (
     event: SelectChangeEvent<string>,
     orderId: number
   ): Promise<void> => {
     const newStatus = event.target.value as "paid" | "not paid";
     
+    // Determine the new status based on payment status
+    const updatedStatus = newStatus === "paid" ? "active" : "approved"; // Assuming approved if not paid
+    
     try {
-      // Fetch the current order details
-      const orderResponse = await fetch(`/v2/api/transport/buspasses/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${otpt}`,
-        },
-      });
-      if (!orderResponse.ok) {
-        throw new Error("Failed to fetch order details");
-      }
-      
-      const order: PassOrder = await orderResponse.json();
-  
-      // Update the payment status
+      // Update payment status and order status in a single call
       const response = await fetch(`/v2/api/transport/buspasses/${orderId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${otpt}`,
         },
-        body: JSON.stringify({ feeStatus: newStatus === "paid" }),
+        body: JSON.stringify({
+          feeStatus: newStatus === "paid",
+          status: updatedStatus,
+        }),
       });
-  
+    
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-  
+    
       const updatedOrder: PassOrder = await response.json();
+      console.log("Order updated successfully:", updatedOrder);
   
-      // If the order is paid and was previously approved, update the status to active
-      if (newStatus === "paid" && order.status === "approved") {
-        const statusUpdateResponse = await fetch(`/v2/api/transport/buspasses/${orderId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${otpt}`,
-          },
-          body: JSON.stringify({ status: "active" }),
-        });
-  
-        if (!statusUpdateResponse.ok) {
-          throw new Error("Failed to update order status");
-        }
-  
-        const finalOrder: PassOrder = await statusUpdateResponse.json();
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.id === finalOrder.id
-              ? {
-                  ...order,
-                  feeStatus: finalOrder.feeStatus,
-                  status: finalOrder.status,
-                  student: finalOrder.student,
-                }
-              : order
-          )
-        );
-      } else {
-        // If no status update is required, simply update the orders
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order.id === updatedOrder.id
-              ? {
-                  ...order,
-                  feeStatus: updatedOrder.feeStatus,
-                  student: updatedOrder.student,
-                }
-              : order
-          )
-        );
-      }
-    } catch (err) {
-      console.error("Failed to update payment status:", err);
+      // Update the state to reflect the changes
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === updatedOrder.id ? updatedOrder : order
+        )
+      );
+    } catch (error) {
+      console.error("Error updating order:", error);
+      alert("There was an error updating the order. Please try again.");
     }
   };
   const handleApprovalUpdate = async (

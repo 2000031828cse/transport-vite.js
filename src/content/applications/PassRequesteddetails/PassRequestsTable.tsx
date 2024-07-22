@@ -53,15 +53,14 @@ const getStatusLabel = (status: PassOrderStatus): JSX.Element => {
       text: "Rejected",
       color: "error",
     },
-    active:{
-      text:"active",
-      color:"success"
+    active: {
+      text: "active",
+      color: "success",
     },
-    inactive:{
-      text:"in-active",
-      color:"error"
+    inactive: {
+      text: "in-active",
+      color: "error",
     },
-
   };
 
   const { text, color } = statusMap[status] || {
@@ -116,8 +115,6 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
 
   const otpt = sessionStorage.getItem("otptoken");
 
-  
-
   const handleDialogOpen = (order: PassOrder) => {
     setCurrentOrder(order);
     setDialogOpen(true);
@@ -145,16 +142,15 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
     setLimit(parseInt(event.target.value, 10));
   };
 
-
   const handlePaymentStatusChangeForOrder = async (
     event: SelectChangeEvent<string>,
     orderId: number
   ): Promise<void> => {
     const newStatus = event.target.value as "paid" | "not paid";
-    
+
     // Determine the new status based on payment status
     const updatedStatus = newStatus === "paid" ? "active" : "approved"; // Assuming approved if not paid
-    
+
     try {
       // Update payment status and order status in a single call
       const response = await fetch(`/v2/api/transport/buspasses/${orderId}`, {
@@ -168,14 +164,14 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
           status: updatedStatus,
         }),
       });
-    
+
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-    
+
       const updatedOrder: PassOrder = await response.json();
       console.log("Order updated successfully:", updatedOrder);
-  
+
       // Update the state to reflect the changes
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -195,13 +191,17 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
   ) => {
     if (currentOrder) {
       // Check if status is approved and validate required fields
-      if (status === 'approved' && (!routeName || !assignedStop||!busPassId
-      )) {
-        console.error("Approval failed: routeName and assignedStop are required.");
+      if (
+        status === "approved" &&
+        (!routeName || !assignedStop || !busPassId)
+      ) {
+        console.error(
+          "Approval failed: routeName and assignedStop are required."
+        );
         // Optionally, show an error message to the user
         return;
       }
-  
+
       try {
         const response = await fetch(
           `/v2/api/transport/buspasses/${currentOrder.id}`, // Use `busPassId` here
@@ -213,13 +213,13 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
             },
             body: JSON.stringify({
               status,
-              routeName: status === 'approved' ? routeName : undefined,
-              assignedStop: status === 'approved' ? assignedStop : undefined,
-              buspassId:status ==='approved'? busPassId : undefined,
+              routeName: status === "approved" ? routeName : undefined,
+              assignedStop: status === "approved" ? assignedStop : undefined,
+              buspassId: status === "approved" ? busPassId : undefined,
             }),
           }
         );
-  
+
         if (!response.ok) {
           const errorDetails = await response.text();
           console.error("Failed to update order:", {
@@ -229,9 +229,9 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
           });
           throw new Error(`Failed to update order: ${response.statusText}`);
         }
-  
+
         const updatedOrder: PassOrder = await response.json();
-  
+
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
             order.id === updatedOrder.id
@@ -242,7 +242,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                   assignedStop: updatedOrder.assignedStop,
                   requestStopName: updatedOrder.requestStopName,
                   student: updatedOrder.student || order.student,
-                  buspassId:updatedOrder.buspassId 
+                  buspassId: updatedOrder.buspassId,
                 }
               : order
           )
@@ -253,7 +253,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
       }
     }
   };
-  
+
   const filteredPassOrders = applyFilters(orders, filters);
   const paginatedPassOrders = applyPagination(filteredPassOrders, page, limit);
   const selectedSomePassOrders =
@@ -349,7 +349,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
               <TableCell>PAYMENT STATUS</TableCell>
               <TableCell>ACTIONS</TableCell>
               <TableCell>APPROVAL STATUS</TableCell>
-              { /*<TableCell>UPDATE</TableCell>*/}
+              {/*<TableCell>UPDATE</TableCell>*/}
               <TableCell>ROUTE NAME</TableCell>
             </TableRow>
           </TableHead>
@@ -359,16 +359,20 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
               return (
                 <TableRow hover key={order.id} selected={isPassOrderSelected}>
                   <TableCell>
-                    <Typography variant="body1" fontWeight="bold" noWrap>
+                    <Typography variant="body1" noWrap>
                       {order.userId}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                  <Typography variant="body1" fontWeight="bold" noWrap>
-                {order.student?.name || "No Name"}
-              </Typography>
+                    <Typography variant="body1" noWrap>
+                      {order.student?.name || "No Name"}
+                    </Typography>
                   </TableCell>
-                  {order.assignedStop || order.requestStopName}
+                  <TableCell>
+                    <Typography variant="body1" noWrap>
+                      {order.assignedStop || order.requestStopName}
+                    </Typography>
+                  </TableCell>
                   <TableCell>
                     <FormControl variant="outlined" fullWidth>
                       <Select
@@ -391,7 +395,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                     </a>
                   </TableCell>
                   <TableCell>{getStatusLabel(order.status)}</TableCell>
-                 {/* <TableCell>
+                  {/* <TableCell>
                      <Tooltip title="Update" arrow>
                       <IconButton
                         size="small"
@@ -403,7 +407,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                     </Tooltip> 
                   </TableCell>*/}
                   <TableCell>
-                    <Typography variant="body1" fontWeight="bold" noWrap>
+                    <Typography variant="body1" noWrap>
                       {order.routeName}
                     </Typography>
                   </TableCell>
@@ -430,7 +434,6 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
           onClose={handleDialogClose}
           onSave={handleApprovalUpdate}
           order={currentOrder}
-          
         />
       )}
     </Card>

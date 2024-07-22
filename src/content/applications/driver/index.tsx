@@ -1,0 +1,100 @@
+import React from "react";
+import {
+  Button,
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Box,
+  Typography,
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useDrivers } from "./DriverContext";
+
+const Drivers: React.FC = () => {
+  const { drivers, deleteDriver } = useDrivers();
+  const navigate = useNavigate();
+
+  const handleAddDriver = () => {
+    navigate("/management/add-driver");
+  };
+
+  return (
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: 4,
+        p: 3,
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        backgroundColor: "#ffffff",
+        textAlign: "center",
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "16px",
+        }}
+      >
+        <Typography variant="h5" align="left">
+          Manage Drivers
+        </Typography>
+        <Button variant="contained" color="primary" onClick={handleAddDriver}>
+          Add Driver
+        </Button>
+      </Box>
+
+      <Box sx={{ overflowX: "auto" }}>
+        <Table sx={{ minWidth: 650 }}>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                <strong>Driver Name</strong>
+              </TableCell>
+              <TableCell sx={{ minWidth: 200, color: "#000000" }}>
+                <strong>License Number</strong>
+              </TableCell>
+              <TableCell sx={{ minWidth: 200, color: "#000000" }}>
+                <strong>Contact Number</strong>
+              </TableCell>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                <strong>Actions</strong>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {drivers.map((driver) => (
+              <TableRow key={driver.id}>
+                <TableCell sx={{ color: "#000000" }}>
+                  {driver.name}
+                </TableCell>
+                <TableCell sx={{ color: "#000000" }}>
+                  {driver.licenseNumber}
+                </TableCell>
+                <TableCell sx={{ color: "#000000" }}>
+                  {driver.phoneNumber}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => deleteDriver(driver.id)}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Box>
+    </Container>
+  );
+};
+
+export default Drivers;

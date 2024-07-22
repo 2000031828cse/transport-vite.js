@@ -74,6 +74,11 @@ function SidebarMenu({ userType }) {
       label: "Create User",
     },
     {
+      to: "/management/driver",
+      icon: <PersonAddIcon />,
+      label: "Drivers",
+    }, 
+    {
       to: "/management/vehicle",
       icon: <AirportShuttleIcon />,
       label: "Vehicle",

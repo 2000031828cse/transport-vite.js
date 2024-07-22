@@ -19,6 +19,8 @@ import StudentTable from "./content/dashboards/Admin/StudentTable";
 import UserBusRoutes from "./content/dashboards/User/routes";
 import VehicleIndex from "./content/applications/Vehicle";
 import AddBus from "./content/applications/Vehicle/AddBus";
+import Drivers from "./content/applications/driver";
+import AddDriver from "./content/applications/driver/adddrivers";
 
 const BusPassRequest = lazy(
   () => import("./content/applications/buspassrequest")
@@ -324,6 +326,27 @@ const routes: RouteObject[] = [
           <PrivateRoute requiredRole="admin">
             <Suspense fallback={<div>Loading...</div>}>
               <VehicleIndex />
+            </Suspense>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "driver",
+        element: (
+          <PrivateRoute requiredRole="admin">
+            <Suspense fallback={<div>Loading...</div>}>
+              <Drivers />
+            </Suspense>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "add-driver",
+        element: (
+          <PrivateRoute requiredRole="admin">
+            <Suspense fallback={<div>Loading...</div>}>
+              
+              <AddDriver/>
             </Suspense>
           </PrivateRoute>
         ),

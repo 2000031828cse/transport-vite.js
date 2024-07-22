@@ -9,6 +9,7 @@ import ThemeProvider from "./theme/ThemeProvider"; // Adjust import path as need
 import { UserProvider } from "./content/applications/create-user/UserContext";
 import { StopsProvider } from "./content/applications/Stops/StopsContext";
 import { VehiclesProvider } from "./content/applications/Vehicle/VehicleContext";
+import { DriverProvider } from "./content/applications/driver/DriverContext";
 function App() {
   const content = useRoutes(router);
 
@@ -19,7 +20,9 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <StopsProvider>
           <VehiclesProvider>
+          <DriverProvider>
             <UserProvider>{content}</UserProvider>
+            </DriverProvider>
           </VehiclesProvider>
         </StopsProvider>
       </Suspense>

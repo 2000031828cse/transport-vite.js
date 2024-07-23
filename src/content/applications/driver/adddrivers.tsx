@@ -13,14 +13,14 @@ const AddDriver: React.FC = () => {
   const { addDriver } = useDrivers();
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [licenseNumber, setLicenseNumber] = useState("");
-  const [address, setAddress] = useState("");
+  const [driverName, setDriverName] = useState("");
+  const [driverMobile, setDriverMobile] = useState("");
+  const [driverLicenseNo, setDriverLicenseNo] = useState("");
+  const [driverAddress, setDriverAddress] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addDriver({ id: Date.now(), name, phoneNumber, licenseNumber, address });
+    addDriver({ driverName, driverMobile, driverLicenseNo, driverAddress });
     navigate("/management/driver");
   };
 
@@ -46,32 +46,32 @@ const AddDriver: React.FC = () => {
       <Box component="form" onSubmit={handleSubmit}>
         <TextField
           label="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={driverName}
+          onChange={(e) => setDriverName(e.target.value)}
           fullWidth
           margin="normal"
           required
         />
         <TextField
           label="Phone Number"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
+          value={driverMobile}
+          onChange={(e) => setDriverMobile(e.target.value)}
           fullWidth
           margin="normal"
           required
         />
         <TextField
           label="License Number"
-          value={licenseNumber}
-          onChange={(e) => setLicenseNumber(e.target.value)}
+          value={driverLicenseNo}
+          onChange={(e) => setDriverLicenseNo(e.target.value)}
           fullWidth
           margin="normal"
           required
         />
         <TextField
           label="Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+          value={driverAddress}
+          onChange={(e) => setDriverAddress(e.target.value)}
           fullWidth
           margin="normal"
           required

@@ -62,6 +62,9 @@ const Drivers: React.FC = () => {
               <TableCell sx={{ minWidth: 200, color: "#000000" }}>
                 <strong>Contact Number</strong>
               </TableCell>
+              <TableCell sx={{ minWidth: 200, color: "#000000" }}>
+                <strong>Address</strong>
+              </TableCell>
               <TableCell sx={{ minWidth: 150, color: "#000000" }}>
                 <strong>Actions</strong>
               </TableCell>
@@ -71,13 +74,16 @@ const Drivers: React.FC = () => {
             {drivers.map((driver) => (
               <TableRow key={driver.id}>
                 <TableCell sx={{ color: "#000000" }}>
-                  {driver.name}
+                  {driver.driverName}
                 </TableCell>
                 <TableCell sx={{ color: "#000000" }}>
-                  {driver.licenseNumber}
+                  {driver.driverLicenseNo}
                 </TableCell>
                 <TableCell sx={{ color: "#000000" }}>
-                  {driver.phoneNumber}
+                  {driver.driverMobile}
+                </TableCell>
+                <TableCell sx={{ color: "#000000" }}>
+                  {driver.driverAddress}
                 </TableCell>
                 <TableCell>
                   <Button

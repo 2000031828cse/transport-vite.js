@@ -2,7 +2,6 @@ import { useRoutes } from "react-router-dom";
 import { Suspense } from "react";
 import router from "./router"; // Adjust import path as needed
 
-import { LocalizationProvider } from "@mui/x-date-pickers";
 // import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { CssBaseline } from "@mui/material";
 import ThemeProvider from "./theme/ThemeProvider"; // Adjust import path as needed
@@ -20,8 +19,8 @@ function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <StopsProvider>
           <VehiclesProvider>
-          <DriverProvider>
-            <UserProvider>{content}</UserProvider>
+            <DriverProvider>
+              <UserProvider>{content}</UserProvider>
             </DriverProvider>
           </VehiclesProvider>
         </StopsProvider>

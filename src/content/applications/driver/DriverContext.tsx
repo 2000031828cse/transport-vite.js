@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface Driver {
   id: number;
@@ -16,7 +22,7 @@ interface DriverContextType {
 }
 
 const DriverContext = createContext<DriverContextType | undefined>(undefined);
-const otpt = sessionStorage.getItem('otptoken');
+const otpt = sessionStorage.getItem("otptoken");
 export const useDrivers = (): DriverContextType => {
   const context = useContext(DriverContext);
   if (!context) {
@@ -48,7 +54,7 @@ export const DriverProvider: React.FC<DriverProviderProps> = ({ children }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          'Authorization': `Bearer ${otpt}`
+          Authorization: `Bearer ${otpt}`,
         },
         body: JSON.stringify(driver),
       });
@@ -64,7 +70,9 @@ export const DriverProvider: React.FC<DriverProviderProps> = ({ children }) => {
       await fetch(`/v2/api/transport/drivers/${id}`, {
         method: "DELETE",
       });
-      setDrivers((prevDrivers) => prevDrivers.filter((driver) => driver.id !== id));
+      setDrivers((prevDrivers) =>
+        prevDrivers.filter((driver) => driver.id !== id)
+      );
     } catch (error) {
       console.error("Failed to delete driver:", error);
     }
@@ -75,7 +83,9 @@ export const DriverProvider: React.FC<DriverProviderProps> = ({ children }) => {
   }, []);
 
   return (
-    <DriverContext.Provider value={{ drivers, fetchDrivers, addDriver, deleteDriver }}>
+    <DriverContext.Provider
+      value={{ drivers, fetchDrivers, addDriver, deleteDriver }}
+    >
       {children}
     </DriverContext.Provider>
   );

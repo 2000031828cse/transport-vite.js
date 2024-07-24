@@ -333,7 +333,7 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
           </Box>
         }
         title={
-          <Typography variant="h5" align="center">
+          <Typography variant="h5" align="left">
             Bus Pass Requests
           </Typography>
         }
@@ -349,7 +349,6 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
               <TableCell>PAYMENT STATUS</TableCell>
               <TableCell>ACTIONS</TableCell>
               <TableCell>APPROVAL STATUS</TableCell>
-              {/*<TableCell>UPDATE</TableCell>*/}
               <TableCell>ROUTE NAME</TableCell>
             </TableRow>
           </TableHead>

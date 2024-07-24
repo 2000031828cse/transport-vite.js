@@ -295,9 +295,11 @@ import {
   TableRow,
   Box,
   Typography,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useStops } from "./StopsContext";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const Stops: React.FC = () => {
   const { stops, deleteStop } = useStops();
@@ -312,15 +314,22 @@ const Stops: React.FC = () => {
       maxWidth="lg"
       sx={{
         mt: 4,
-        p: 3,
+        p: 2,
         border: "1px solid #ccc",
-        borderRadius: "8px",
         backgroundColor: "#ffffff",
-        textAlign: "center",
+        color: "#000000",
+        marginBottom: "16px",
       }}
     >
-      <Typography variant="h5">Manage Stops</Typography>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "16px",
+        }}
+      >
+        <Typography variant="h5">Manage Stops</Typography>
         <Button variant="contained" color="primary" onClick={handleAddStop}>
           Add Stop
         </Button>
@@ -329,23 +338,29 @@ const Stops: React.FC = () => {
       <Box sx={{ overflowX: "auto" }}>
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
-            <TableRow>
-              <TableCell sx={{ minWidth: 100 }}>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
                 <strong>Stop Number</strong>
               </TableCell>
-              <TableCell sx={{ minWidth: 150 }}>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
                 <strong>Stop Name</strong>
               </TableCell>
-              <TableCell sx={{ minWidth: 100 }}>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
                 <strong>Latitude</strong>
               </TableCell>
-              <TableCell sx={{ minWidth: 100 }}>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
                 <strong>Longitude</strong>
               </TableCell>
-              <TableCell sx={{ minWidth: 150 }}>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
                 <strong>Landmark</strong>
               </TableCell>
-              <TableCell sx={{ minWidth: 100 }}>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                <strong>Pick Up Time</strong>
+              </TableCell>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                <strong>Drop Time</strong>
+              </TableCell>
+              <TableCell sx={{ minWidth: 150, color: "#000000" }}>
                 <strong>Actions</strong>
               </TableCell>
             </TableRow>
@@ -353,19 +368,31 @@ const Stops: React.FC = () => {
           <TableBody>
             {stops.map((stop) => (
               <TableRow key={stop.id}>
-                <TableCell>{stop.id}</TableCell>
-                <TableCell>{stop.address}</TableCell>
-                <TableCell>{stop.lat}</TableCell>
-                <TableCell>{stop.lng}</TableCell>
-                <TableCell>{stop.landmark}</TableCell>
+                <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                  {stop.id}
+                </TableCell>
+                <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                  {stop.address}
+                </TableCell>
+                <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                  {stop.lat}
+                </TableCell>
+                <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                  {stop.lng}
+                </TableCell>
+                <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                  {stop.landmark}
+                </TableCell>
+                <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                  {stop.pickUp}
+                </TableCell>
+                <TableCell sx={{ minWidth: 150, color: "#000000" }}>
+                  {stop.dropTime}
+                </TableCell>
                 <TableCell>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => deleteStop(stop.id)}
-                  >
-                    Delete
-                  </Button>
+                  <IconButton color="error" onClick={() => deleteStop(stop.id)}>
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}

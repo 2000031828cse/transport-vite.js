@@ -9,9 +9,12 @@ import {
   TableRow,
   Box,
   Typography,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDrivers } from "./DriverContext";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 
 const Drivers: React.FC = () => {
   const { drivers, deleteDriver } = useDrivers();
@@ -19,6 +22,10 @@ const Drivers: React.FC = () => {
 
   const handleAddDriver = () => {
     navigate("/management/add-driver");
+  };
+
+  const handleEditRoute = (driver: any) => {
+    navigate(`/management/add-driver?edit=${driver.id}`);
   };
 
   return (
@@ -86,13 +93,18 @@ const Drivers: React.FC = () => {
                   {driver.driverAddress}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="contained"
-                    color="secondary"
+                  <IconButton
+                    color="primary"
+                    onClick={() => handleEditRoute(driver)}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    color="error"
                     onClick={() => deleteDriver(driver.id)}
                   >
-                    Delete
-                  </Button>
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}

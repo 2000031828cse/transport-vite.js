@@ -1,8 +1,7 @@
-import { Helmet } from 'react-helmet-async';
-import PageTitleWrapper from 'src/components/PageTitleWrapper';
-import { Grid, Container, Box } from '@mui/material';
+import { Helmet } from "react-helmet-async";
+import { Grid, Container, Box } from "@mui/material";
 
-import PassRequests from './PassRequests';
+import PassRequests from "./PassRequests";
 
 function RequestedDetails() {
   return (

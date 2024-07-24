@@ -149,7 +149,13 @@
 //   );
 // };
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface Stop {
   id: number;
@@ -157,6 +163,8 @@ interface Stop {
   lat: number;
   lng: number;
   landmark: string;
+  pickUp: string;
+  dropTime: string;
 }
 
 interface StopsContextType {
@@ -175,52 +183,54 @@ export const useStops = () => {
   return context;
 };
 
-export const StopsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const StopsProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [stops, setStops] = useState<Stop[]>([]);
-  const apiUrl = '/v2/api/transport'; // Replace with your actual API URL
-  const otpt = sessionStorage.getItem('otptoken');
+  const apiUrl = "/v2/api/transport"; // Replace with your actual API URL
+  const otpt = sessionStorage.getItem("otptoken");
 
   useEffect(() => {
     fetch(`${apiUrl}/stops`, {
       headers: {
-        'Authorization': `Bearer ${otpt}`,
+        Authorization: `Bearer ${otpt}`,
       },
     })
-      .then(response => response.json())
-      .then(data => setStops(data))
-      .catch(error => console.error('Error fetching stops:', error));
+      .then((response) => response.json())
+      .then((data) => setStops(data))
+      .catch((error) => console.error("Error fetching stops:", error));
   }, [apiUrl, otpt]);
 
   const addStop = (stop: Omit<Stop, "id">) => {
     fetch(`${apiUrl}/stops`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${otpt}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${otpt}`,
       },
       body: JSON.stringify(stop),
     })
-      .then(response => response.json())
-      .then(data => {
-        setStops(prevStops => [...prevStops, data]);
+      .then((response) => response.json())
+      .then((data) => {
+        setStops((prevStops) => [...prevStops, data]);
       })
-      .catch(error => console.error('Error adding stop:', error));
+      .catch((error) => console.error("Error adding stop:", error));
   };
 
   const deleteStop = (id: number) => {
     fetch(`${apiUrl}/stops/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${otpt}`,
+        Authorization: `Bearer ${otpt}`,
       },
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Failed to delete stop');
+          throw new Error("Failed to delete stop");
         }
-        setStops(prevStops => prevStops.filter(stop => stop.id !== id));
+        setStops((prevStops) => prevStops.filter((stop) => stop.id !== id));
       })
-      .catch(error => console.error('Error deleting stop:', error));
+      .catch((error) => console.error("Error deleting stop:", error));
   };
 
   return (

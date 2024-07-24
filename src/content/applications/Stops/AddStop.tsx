@@ -150,7 +150,6 @@
 
 // export default AddStop;
 
-
 import React, { useState } from "react";
 import { Button, Container, TextField, Box, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -164,12 +163,16 @@ const AddStop: React.FC = () => {
     lat: "",
     lng: "",
     landmark: "",
+    pickUp: "",
+    dropTime: "",
   });
   const [errors, setErrors] = useState({
     address: "",
     lat: "",
     lng: "",
     landmark: "",
+    pickUp: "",
+    dropTime: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,6 +189,8 @@ const AddStop: React.FC = () => {
       lat: "",
       lng: "",
       landmark: "",
+      pickUp: "",
+      dropTime: "",
     };
     let isValid = true;
 
@@ -219,6 +224,8 @@ const AddStop: React.FC = () => {
       lat: stop.lat ? parseFloat(stop.lat) : undefined,
       lng: stop.lng ? parseFloat(stop.lng) : undefined,
       landmark: stop.landmark,
+      pickUp: stop.pickUp,
+      dropTime: stop.dropTime,
     });
     navigate("/management/stops");
   };
@@ -288,7 +295,31 @@ const AddStop: React.FC = () => {
           error={Boolean(errors.landmark)}
           helperText={errors.landmark}
         />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="pickUp"
+          label="Pick Up Time"
+          name="pickUp"
+          value={stop.pickUp}
+          onChange={handleChange}
+          error={Boolean(errors.pickUp)}
+          helperText={errors.pickUp}
+        />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="dropTime"
+          label="Drop Time"
+          name="dropTime"
+          value={stop.dropTime}
+          onChange={handleChange}
+          error={Boolean(errors.dropTime)}
+          helperText={errors.dropTime}
+        />
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
           <Button
             type="button"
             variant="outlined"
@@ -297,11 +328,7 @@ const AddStop: React.FC = () => {
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-          >
+          <Button type="submit" variant="contained" color="primary">
             Add Stop
           </Button>
         </Box>

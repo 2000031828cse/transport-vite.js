@@ -9,8 +9,11 @@ import {
   TableRow,
   Box,
   Typography,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import { useVehicles } from "./VehicleContext";
 
 const Vehicles: React.FC = () => {
@@ -110,13 +113,12 @@ const Vehicles: React.FC = () => {
                   {vehicle.busModel}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="contained"
-                    color="secondary"
+                  <IconButton
+                    color="error"
                     onClick={() => deleteVehicle(vehicle.id)}
                   >
-                    Delete
-                  </Button>
+                    <DeleteIcon />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}

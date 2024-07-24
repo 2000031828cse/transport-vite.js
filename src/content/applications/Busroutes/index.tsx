@@ -279,7 +279,6 @@ import {
   Container,
   CircularProgress,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
@@ -349,15 +348,10 @@ const BusRoutes: React.FC = () => {
           padding: "16px",
         }}
       >
-        <Typography variant="h6">Bus Routes</Typography>
+        <Typography variant="h5">Bus Routes</Typography>
         <Button
           variant="contained"
-          sx={{
-            backgroundColor: "#000000",
-            color: "#ffffff",
-            "&:hover": { backgroundColor: "#333333" },
-          }}
-          startIcon={<AddIcon />}
+          color="primary"
           onClick={handleAddRouteClick}
         >
           Add Route

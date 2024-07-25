@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -8,34 +8,38 @@ import {
   MenuItem,
   Box,
   Typography,
-  SelectChangeEvent
-} from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useStops } from '../Stops/StopsContext';
-import { useBusRoutes } from './BusRoutesContext';
-import { Stop } from './stops'; // Correct the import path if necessary
+  SelectChangeEvent,
+} from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useStops } from "../Stops/StopsContext";
+import { useBusRoutes } from "./BusRoutesContext";
+import { useVehicles } from "../Vehicle/VehicleContext";
+import { Stop } from "./stops"; // Correct the import path if necessary
 
 const AddRoute: React.FC = () => {
   const { stops } = useStops();
   const { addRoute, updateRoute, routes } = useBusRoutes();
+  const { vehicles } = useVehicles();
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const editId = searchParams.get('edit');
+  const editId = searchParams.get("edit");
 
   const initialRoute = {
     id: routes.length + 1,
-    name: '',
-    timings: '',
-    stops: []
+    name: "",
+    timings: "",
+    stops: [],
+    buses: [], // Add this line to include buses
   };
 
   const [newRoute, setNewRoute] = useState(initialRoute);
   const [selectedStops, setSelectedStops] = useState<Stop[]>([]);
+  const [selectedBusId, setSelectedBusId] = useState<number | "">("");
   const [errors, setErrors] = useState({
     name: false,
     timings: false,
-    stops: false
+    stops: false,
   });
 
   useEffect(() => {
@@ -44,6 +48,9 @@ const AddRoute: React.FC = () => {
       if (routeToEdit) {
         setNewRoute(routeToEdit);
         setSelectedStops(routeToEdit.stops);
+        setSelectedBusId(
+          routeToEdit.buses.length > 0 ? routeToEdit.buses[0].id : ""
+        );
       }
     }
   }, [editId, routes]);
@@ -54,7 +61,10 @@ const AddRoute: React.FC = () => {
     setErrors({ ...errors, [name]: false });
   };
 
-  const handleStopChange = (index: number, event: SelectChangeEvent<number>) => {
+  const handleStopChange = (
+    index: number,
+    event: SelectChangeEvent<number>
+  ) => {
     const stopId = event.target.value as number;
     const newSelectedStops = [...selectedStops];
     const stop = stops.find((s) => s.id === stopId);
@@ -74,7 +84,16 @@ const AddRoute: React.FC = () => {
   };
 
   const addNewStopField = () => {
-    setSelectedStops([...selectedStops, { id: 0, address: '' }]);
+    setSelectedStops([...selectedStops, { id: 0, address: "" }]);
+  };
+
+  const handleBusChange = (event: SelectChangeEvent<number>) => {
+    const busId = event.target.value as number;
+    setSelectedBusId(busId);
+    const selectedBus = vehicles.find((bus) => bus.id === busId);
+    if (selectedBus) {
+      setNewRoute({ ...newRoute, buses: [selectedBus] });
+    }
   };
 
   const validateForm = () => {
@@ -82,7 +101,7 @@ const AddRoute: React.FC = () => {
     const currentErrors = {
       name: false,
       timings: false,
-      stops: false
+      stops: false,
     };
     if (!newRoute.name) {
       currentErrors.name = true;
@@ -108,7 +127,7 @@ const AddRoute: React.FC = () => {
 
     const updatedRoute = {
       ...newRoute,
-      stops: selectedStops.filter((stop) => stop.id !== 0) // Filter out placeholders
+      stops: selectedStops.filter((stop) => stop.id !== 0), // Filter out placeholders
     };
 
     if (editId) {
@@ -117,47 +136,47 @@ const AddRoute: React.FC = () => {
       addRoute(updatedRoute);
     }
 
-    navigate('/management/busstages');
+    navigate("/management/busstages");
   };
 
   const handleCancel = () => {
-    navigate('/management/busstages');
+    navigate("/management/busstages");
   };
 
   return (
-    <Box sx={{ padding: '16px' }}>
+    <Box sx={{ padding: "16px" }}>
       <Typography variant="h6">
-        {editId ? 'Edit Route' : 'Add Route'}
+        {editId ? "Edit Route" : "Add Route"}
       </Typography>
-      <FormControl fullWidth sx={{ marginBottom: '8px' }}>
+      <FormControl fullWidth sx={{ marginBottom: "8px" }}>
         <TextField
           error={errors.name}
-          helperText={errors.name ? 'Route Name is required' : ''}
+          helperText={errors.name ? "Route Name is required" : ""}
           label="Route Name"
           variant="outlined"
           name="name"
           value={newRoute.name}
           onChange={handleInputChange}
           fullWidth
-          sx={{ marginBottom: '8px' }}
+          sx={{ marginBottom: "8px" }}
         />
       </FormControl>
-      <FormControl fullWidth sx={{ marginBottom: '8px' }}>
+      <FormControl fullWidth sx={{ marginBottom: "8px" }}>
         <TextField
           error={errors.timings}
-          helperText={errors.timings ? 'Timings are required' : ''}
+          helperText={errors.timings ? "Timings are required" : ""}
           label="Timings"
           variant="outlined"
           name="timings"
           value={newRoute.timings}
           onChange={handleInputChange}
           fullWidth
-          sx={{ marginBottom: '8px' }}
+          sx={{ marginBottom: "8px" }}
         />
       </FormControl>
       <Typography variant="body1">Stops:</Typography>
       {selectedStops.map((stop, index) => (
-        <FormControl fullWidth key={index} sx={{ marginBottom: '8px' }}>
+        <FormControl fullWidth key={index} sx={{ marginBottom: "8px" }}>
           <Select
             value={stop.id}
             onChange={(event) => handleStopChange(index, event)}
@@ -184,13 +203,18 @@ const AddRoute: React.FC = () => {
             variant="contained"
             color="secondary"
             onClick={() => handleDeleteStop(index)}
-            sx={{ marginTop: '8px' }}
+            sx={{ marginTop: "8px" }}
           >
             Remove Stop
           </Button>
         </FormControl>
       ))}
-      <Button variant="contained" color="primary" onClick={addNewStopField} sx={{ marginBottom: '16px' }}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={addNewStopField}
+        sx={{ marginBottom: "16px" }}
+      >
         Add Stop
       </Button>
       {errors.stops && (
@@ -198,12 +222,48 @@ const AddRoute: React.FC = () => {
           At least one valid stop is required
         </Typography>
       )}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button variant="contained" onClick={handleCancel} sx={{ marginRight: '8px' }}>
+      <FormControl fullWidth sx={{ marginBottom: "8px" }}>
+        <InputLabel>Bus</InputLabel>
+        <Select
+          value={selectedBusId}
+          onChange={handleBusChange}
+          displayEmpty
+          fullWidth
+        >
+          <MenuItem disabled value="">
+            <em>Select Bus</em>
+          </MenuItem>
+          {vehicles.map((bus) => (
+            <MenuItem key={bus.id} value={bus.id}>
+              {bus.busName}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      {selectedBusId && (
+        <Box sx={{ marginBottom: "16px" }}>
+          <Typography variant="body2">
+            Bus Name: {newRoute.buses[0]?.busName}
+          </Typography>
+          <Typography variant="body2">
+            Driver Name: {newRoute.buses[0]?.driverName}
+          </Typography>
+        </Box>
+      )}
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button
+          variant="contained"
+          onClick={handleCancel}
+          sx={{ marginRight: "8px" }}
+        >
           Cancel
         </Button>
-        <Button variant="contained" color="primary" onClick={handleAddOrUpdateRoute}>
-          {editId ? 'Update Route' : 'Add Route'}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddOrUpdateRoute}
+        >
+          {editId ? "Update Route" : "Add Route"}
         </Button>
       </Box>
     </Box>
@@ -211,4 +271,3 @@ const AddRoute: React.FC = () => {
 };
 
 export default AddRoute;
-

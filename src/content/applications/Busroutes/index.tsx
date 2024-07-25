@@ -149,7 +149,7 @@ const BusRoutes: React.FC = () => {
                       <EditIcon />
                     </IconButton>
                     <IconButton
-                      color="secondary"
+                      color="error"
                       onClick={() => handleDeleteRoute(route.id)}
                     >
                       <DeleteIcon />

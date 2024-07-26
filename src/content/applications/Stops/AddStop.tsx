@@ -1,170 +1,21 @@
-// import React, { useState } from "react";
-// import { Button, Container, TextField, Box, Typography } from "@mui/material";
-// import { useNavigate } from "react-router-dom";
-// import { useStops } from "./StopsContext";
-
-// const AddStop: React.FC = () => {
-//   const { addStop } = useStops();
-//   const navigate = useNavigate();
-//   const [stop, setStop] = useState({
-//     name: "",
-//     latitude: "",
-//     longitude: "",
-
-//     landmark: "",
-//   });
-//   const [errors, setErrors] = useState({
-//     name: "",
-//     latitude: "",
-//     longitude: "",
-
-//     landmark: "",
-//   });
-
-//   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     setStop({
-//       ...stop,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
-
-//   const validate = () => {
-//     const tempErrors = {
-//       name: "",
-//       latitude: "",
-//       longitude: "",
-//       landmark: "",
-//     };
-//     let isValid = true;
-
-//     if (!stop.name) {
-//       tempErrors.name = "Stop Name is required";
-//       isValid = false;
-//     }
-//     if (!stop.latitude) {
-//       tempErrors.latitude = "Latitude is required";
-//       isValid = false;
-//     }
-//     if (!stop.longitude) {
-//       tempErrors.longitude = "Longitude is required";
-//       isValid = false;
-//     }
-//     if (!stop.landmark) {
-//       tempErrors.landmark = "Landmark is required";
-//       isValid = false;
-//     }
-
-//     setErrors(tempErrors);
-//     return isValid;
-//   };
-
-//   const handleSubmit = (e: React.FormEvent) => {
-//     e.preventDefault();
-//     if (!validate()) return;
-
-//     addStop({
-//       name: stop.name,
-//       latitude: stop.latitude,
-//       longitude: stop.longitude,
-//       landmark: stop.landmark,
-//     });
-//     navigate("/management/stops");
-//   };
-
-//   return (
-//     <Container
-//       maxWidth="sm"
-//       sx={{
-//         mt: 4,
-//         p: 2,
-//         border: "1px solid #ccc",
-//         borderRadius: "8px",
-//         backgroundColor: "#ffffff",
-//       }}
-//     >
-//       <Typography variant="h5" align="center" sx={{ mb: 3 }}>
-//         Add New Stop
-//       </Typography>
-//       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-//         <TextField
-//           margin="normal"
-//           required
-//           fullWidth
-//           id="name"
-//           label="Stop Name"
-//           name="name"
-//           value={stop.name}
-//           onChange={handleChange}
-//           error={Boolean(errors.name)}
-//           helperText={errors.name}
-//         />
-//         <TextField
-//           margin="normal"
-//           required
-//           fullWidth
-//           id="latitude"
-//           label="Latitude"
-//           name="latitude"
-//           value={stop.latitude}
-//           onChange={handleChange}
-//           error={Boolean(errors.latitude)}
-//           helperText={errors.latitude}
-//         />
-//         <TextField
-//           margin="normal"
-//           required
-//           fullWidth
-//           id="longitude"
-//           label="Longitude"
-//           name="longitude"
-//           value={stop.longitude}
-//           onChange={handleChange}
-//           error={Boolean(errors.longitude)}
-//           helperText={errors.longitude}
-//         />
-//         <TextField
-//           margin="normal"
-//           required
-//           fullWidth
-//           id="landmark"
-//           label="Landmark"
-//           name="landmark"
-//           value={stop.landmark}
-//           onChange={handleChange}
-//           error={Boolean(errors.landmark)}
-//           helperText={errors.landmark}
-//         />
-//         <Button
-//           type="submit"
-//           fullWidth
-//           variant="contained"
-//           color="primary"
-//           sx={{ mt: 3, mb: 2 }}
-//         >
-//           Add Stop
-//         </Button>
-//       </Box>
-//     </Container>
-//   );
-// };
-
-// export default AddStop;
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Container, TextField, Box, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useStops } from "./StopsContext";
 
 const AddStop: React.FC = () => {
-  const { addStop } = useStops();
+  const { addStop, editStop } = useStops();
   const navigate = useNavigate();
+  const location = useLocation();
+  const stopToEdit = location.state?.stop;
+
   const [stop, setStop] = useState({
-    address: "",
-    lat: "",
-    lng: "",
-    landmark: "",
-    pickUp: "",
-    dropTime: "",
+    address: stopToEdit?.address || "",
+    lat: stopToEdit?.lat || "",
+    lng: stopToEdit?.lng || "",
+    landmark: stopToEdit?.landmark || "",
+    pickUp: stopToEdit?.pickUp || "",
+    dropTime: stopToEdit?.dropTime || "",
   });
   const [errors, setErrors] = useState({
     address: "",
@@ -219,14 +70,25 @@ const AddStop: React.FC = () => {
     e.preventDefault();
     if (!validate()) return;
 
-    addStop({
-      address: stop.address,
-      lat: stop.lat ? parseFloat(stop.lat) : undefined,
-      lng: stop.lng ? parseFloat(stop.lng) : undefined,
-      landmark: stop.landmark,
-      pickUp: stop.pickUp,
-      dropTime: stop.dropTime,
-    });
+    if (stopToEdit) {
+      editStop(stopToEdit.id, {
+        address: stop.address,
+        lat: stop.lat ? parseFloat(stop.lat) : undefined,
+        lng: stop.lng ? parseFloat(stop.lng) : undefined,
+        landmark: stop.landmark,
+        pickUp: stop.pickUp,
+        dropTime: stop.dropTime,
+      });
+    } else {
+      addStop({
+        address: stop.address,
+        lat: stop.lat ? parseFloat(stop.lat) : undefined,
+        lng: stop.lng ? parseFloat(stop.lng) : undefined,
+        landmark: stop.landmark,
+        pickUp: stop.pickUp,
+        dropTime: stop.dropTime,
+      });
+    }
     navigate("/management/stops");
   };
 
@@ -246,7 +108,7 @@ const AddStop: React.FC = () => {
       }}
     >
       <Typography variant="h5" align="center" sx={{ mb: 3 }}>
-        Add New Stop
+        {stopToEdit ? "Edit Stop" : "Add New Stop"}
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
         <TextField
@@ -329,7 +191,7 @@ const AddStop: React.FC = () => {
             Cancel
           </Button>
           <Button type="submit" variant="contained" color="primary">
-            Add Stop
+            {stopToEdit ? "Update Stop" : "Add Stop"}
           </Button>
         </Box>
       </Box>

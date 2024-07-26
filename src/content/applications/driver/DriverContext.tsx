@@ -18,11 +18,16 @@ interface DriverContextType {
   drivers: Driver[];
   fetchDrivers: () => void;
   addDriver: (driver: Omit<Driver, "id">) => void;
+  updateDriver: (
+    driverLicenseNo: string,
+    driver: Omit<Driver, "id" | "driverLicenseNo">
+  ) => void;
   deleteDriver: (id: number) => void;
 }
 
 const DriverContext = createContext<DriverContextType | undefined>(undefined);
 const otpt = sessionStorage.getItem("otptoken");
+
 export const useDrivers = (): DriverContextType => {
   const context = useContext(DriverContext);
   if (!context) {
@@ -65,6 +70,38 @@ export const DriverProvider: React.FC<DriverProviderProps> = ({ children }) => {
     }
   };
 
+  const updateDriver = async (
+    driverLicenseNo: string,
+    driver: Omit<Driver, "id" | "driverLicenseNo">
+  ) => {
+    try {
+      const response = await fetch(
+        `/v2/api/transport/drivers/${driverLicenseNo}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${otpt}`,
+          },
+          body: JSON.stringify(driver),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to update driver: ${response.statusText}`);
+      }
+
+      const updatedDriver = await response.json();
+      setDrivers((prevDrivers) =>
+        prevDrivers.map((d) =>
+          d.driverLicenseNo === driverLicenseNo ? updatedDriver : d
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update driver:", error);
+    }
+  };
+
   const deleteDriver = async (id: number) => {
     try {
       await fetch(`/v2/api/transport/drivers/${id}`, {
@@ -84,7 +121,7 @@ export const DriverProvider: React.FC<DriverProviderProps> = ({ children }) => {
 
   return (
     <DriverContext.Provider
-      value={{ drivers, fetchDrivers, addDriver, deleteDriver }}
+      value={{ drivers, fetchDrivers, addDriver, updateDriver, deleteDriver }}
     >
       {children}
     </DriverContext.Provider>

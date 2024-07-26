@@ -97,7 +97,7 @@ const BusRoutes: React.FC = () => {
             <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
               <TableCell sx={{ color: "#000000" }}>S.No</TableCell>
               <TableCell sx={{ color: "#000000" }}>Route Name</TableCell>
-              <TableCell sx={{ color: "#000000" }}>Timings</TableCell>
+              {/* <TableCell sx={{ color: "#000000" }}>Timings</TableCell> */}
               <TableCell sx={{ color: "#000000" }}>Stops</TableCell>
               <TableCell sx={{ color: "#000000" }}>Bus Name</TableCell>
               <TableCell sx={{ color: "#000000" }}>Driver Name</TableCell>
@@ -116,9 +116,9 @@ const BusRoutes: React.FC = () => {
                 <TableRow key={route.id}>
                   <TableCell sx={{ color: "#000000" }}>{route.id}</TableCell>
                   <TableCell sx={{ color: "#000000" }}>{route.name}</TableCell>
-                  <TableCell sx={{ color: "#000000" }}>
+                  {/* <TableCell sx={{ color: "#000000" }}>
                     {route.timings}
-                  </TableCell>
+                  </TableCell> */}
                   <TableCell sx={{ color: "#000000" }}>
                     {route.stops && Array.isArray(route.stops) ? (
                       route.stops.map((stop, index) => (

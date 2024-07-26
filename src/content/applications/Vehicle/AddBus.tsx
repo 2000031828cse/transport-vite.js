@@ -130,9 +130,14 @@ const AddVehicle: React.FC = () => {
           onChange={(e) => setBusModel(e.target.value)}
           fullWidth
         />
-        <Button variant="contained" color="primary" type="submit">
-          Add Vehicle
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+          <Button variant="contained" color="primary" type="submit">
+            Add Vehicle
+          </Button>
+          <Button variant="outlined" color="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </Box>
       </Box>
     </Container>
   );

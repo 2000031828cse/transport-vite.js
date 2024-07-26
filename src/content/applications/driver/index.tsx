@@ -25,7 +25,7 @@ const Drivers: React.FC = () => {
   };
 
   const handleEditRoute = (driver: any) => {
-    navigate(`/management/add-driver?edit=${driver.id}`);
+    navigate(`/management/add-driver?edit=${driver.driverLicenseNo}`);
   };
 
   return (
@@ -67,7 +67,7 @@ const Drivers: React.FC = () => {
                 <strong>License Number</strong>
               </TableCell>
               <TableCell sx={{ minWidth: 200, color: "#000000" }}>
-                <strong>Contact Number</strong>
+                <strong>Mobile Number</strong>
               </TableCell>
               <TableCell sx={{ minWidth: 200, color: "#000000" }}>
                 <strong>Address</strong>
@@ -80,18 +80,10 @@ const Drivers: React.FC = () => {
           <TableBody>
             {drivers.map((driver) => (
               <TableRow key={driver.id}>
-                <TableCell sx={{ color: "#000000" }}>
-                  {driver.driverName}
-                </TableCell>
-                <TableCell sx={{ color: "#000000" }}>
-                  {driver.driverLicenseNo}
-                </TableCell>
-                <TableCell sx={{ color: "#000000" }}>
-                  {driver.driverMobile}
-                </TableCell>
-                <TableCell sx={{ color: "#000000" }}>
-                  {driver.driverAddress}
-                </TableCell>
+                <TableCell>{driver.driverName}</TableCell>
+                <TableCell>{driver.driverLicenseNo}</TableCell>
+                <TableCell>{driver.driverMobile}</TableCell>
+                <TableCell>{driver.driverAddress}</TableCell>
                 <TableCell>
                   <IconButton
                     color="primary"

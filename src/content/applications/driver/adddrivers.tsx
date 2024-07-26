@@ -1,26 +1,42 @@
-import React, { useState } from "react";
-import {
-  Button,
-  Container,
-  TextField,
-  Box,
-  Typography,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Button, Container, TextField, Box, Typography } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDrivers } from "./DriverContext";
 
 const AddDriver: React.FC = () => {
-  const { addDriver } = useDrivers();
+  const { addDriver, updateDriver, drivers } = useDrivers();
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const editLicenseNo = queryParams.get("edit");
 
   const [driverName, setDriverName] = useState("");
   const [driverMobile, setDriverMobile] = useState("");
   const [driverLicenseNo, setDriverLicenseNo] = useState("");
   const [driverAddress, setDriverAddress] = useState("");
 
+  useEffect(() => {
+    if (editLicenseNo) {
+      const driver = drivers.find((d) => d.driverLicenseNo === editLicenseNo);
+      if (driver) {
+        setDriverName(driver.driverName);
+        setDriverMobile(driver.driverMobile);
+        setDriverLicenseNo(driver.driverLicenseNo);
+        setDriverAddress(driver.driverAddress);
+      }
+    }
+  }, [editLicenseNo, drivers]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addDriver({ driverName, driverMobile, driverLicenseNo, driverAddress });
+    const driverData = { driverName, driverMobile, driverAddress };
+
+    if (editLicenseNo) {
+      updateDriver(driverLicenseNo, driverData);
+    } else {
+      addDriver({ driverName, driverMobile, driverLicenseNo, driverAddress });
+    }
+
     navigate("/management/driver");
   };
 
@@ -41,7 +57,7 @@ const AddDriver: React.FC = () => {
       }}
     >
       <Typography variant="h5" align="left" sx={{ mb: 3 }}>
-        Add New Driver
+        {editLicenseNo ? "Edit Driver" : "Add New Driver"}
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <TextField
@@ -67,6 +83,7 @@ const AddDriver: React.FC = () => {
           fullWidth
           margin="normal"
           required
+          disabled={!!editLicenseNo}
         />
         <TextField
           label="Address"
@@ -78,7 +95,7 @@ const AddDriver: React.FC = () => {
         />
         <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
           <Button type="submit" variant="contained" color="primary">
-            Add Driver
+            {editLicenseNo ? "Update Driver" : "Add Driver"}
           </Button>
           <Button variant="outlined" color="secondary" onClick={handleCancel}>
             Cancel

@@ -68,16 +68,16 @@ function SidebarMenu({ userType }) {
     },
     { to: "/management/stops", icon: <PlaceIcon />, label: "Stops" },
     { to: "/management/busstages", icon: <RouteIcon />, label: "Routes" },
-    {
-      to: "/management/createuser",
-      icon: <PersonAddIcon />,
-      label: "Create User",
-    },
+    // {
+    //   to: "/management/createuser",
+    //   icon: <PersonAddIcon />,
+    //   label: "Create User",
+    // },
     {
       to: "/management/driver",
       icon: <PersonAddIcon />,
       label: "Drivers",
-    }, 
+    },
     {
       to: "/management/vehicle",
       icon: <AirportShuttleIcon />,

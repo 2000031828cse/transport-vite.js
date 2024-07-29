@@ -258,7 +258,7 @@
 
 // export default TermPage;
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Container,
@@ -272,8 +272,8 @@ import {
   Typography,
   MenuItem,
   Select,
-  SelectChangeEvent
-} from '@mui/material';
+  SelectChangeEvent,
+} from "@mui/material";
 
 interface Term {
   id: number;
@@ -288,49 +288,54 @@ const TermPage: React.FC = () => {
     id: 1,
     startDate: null,
     endDate: null,
-    sem: 'odd'
+    sem: "odd",
   });
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
 
-  const apiUrl = '/v2/api/transport'; // Replace with your actual API URL
+  const apiUrl = "/v2/api/transport"; // Replace with your actual API URL
 
   useEffect(() => {
     // Fetch existing terms from the API
     fetch(`${apiUrl}/terms`)
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         setTerms(data);
         // Set the next term id
-        const nextId = data.length > 0 ? Math.max(...data.map((term: Term) => term.id)) + 1 : 1;
-        setNewTerm(prevTerm => ({
+        const nextId =
+          data.length > 0
+            ? Math.max(...data.map((term: Term) => term.id)) + 1
+            : 1;
+        setNewTerm((prevTerm) => ({
           ...prevTerm,
-          id: nextId
+          id: nextId,
         }));
       })
-      .catch(error => console.error('There was an error fetching the terms!', error));
+      .catch((error) =>
+        console.error("There was an error fetching the terms!", error)
+      );
   }, [apiUrl]);
 
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTerm(prevTerm => ({
+    setNewTerm((prevTerm) => ({
       ...prevTerm,
-      startDate: e.target.value
+      startDate: e.target.value,
     }));
-    setError('');
+    setError("");
   };
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTerm(prevTerm => ({
+    setNewTerm((prevTerm) => ({
       ...prevTerm,
-      endDate: e.target.value
+      endDate: e.target.value,
     }));
-    setError('');
+    setError("");
   };
 
   const handleSemesterChange = (e: SelectChangeEvent<string>) => {
     const newSemester = e.target.value;
-    setNewTerm(prevTerm => ({
+    setNewTerm((prevTerm) => ({
       ...prevTerm,
-      sem: newSemester
+      sem: newSemester,
     }));
   };
 
@@ -344,8 +349,12 @@ const TermPage: React.FC = () => {
   };
 
   const handleCreateTerm = () => {
-    if (newTerm.startDate === null || newTerm.endDate === null || !newTerm.sem) {
-      setError('Please select start date, end date, and semester.');
+    if (
+      newTerm.startDate === null ||
+      newTerm.endDate === null ||
+      !newTerm.sem
+    ) {
+      setError("Please select start date, end date, and semester.");
       return;
     }
 
@@ -353,7 +362,7 @@ const TermPage: React.FC = () => {
     const endDate = new Date(newTerm.endDate);
 
     if (startDate >= endDate) {
-      setError('End date must be after the start date.');
+      setError("End date must be after the start date.");
       return;
     }
 
@@ -361,61 +370,58 @@ const TermPage: React.FC = () => {
     oneYearLater.setFullYear(startDate.getFullYear() + 1);
 
     if (endDate > oneYearLater) {
-      setError('End date cannot exceed start date by more than one year.');
+      setError("End date cannot exceed start date by more than one year.");
       return;
     }
 
     if (isDuplicateTerm(newTerm)) {
-      setError('This term already exists.');
+      setError("This term already exists.");
       return;
     }
 
-    const otpt = sessionStorage.getItem('otptoken');
+    const otpt = sessionStorage.getItem("otptoken");
 
     // Send a POST request to create a new term
     fetch(`${apiUrl}/terms`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${otpt}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${otpt}`,
       },
       body: JSON.stringify(newTerm),
     })
-      .then(response => response.json())
-      .then(data => {
-        setTerms(prevTerms => [
-          ...prevTerms,
-          { ...newTerm, id: data.id }
-        ]);
-        setNewTerm(prevTerm => ({
+      .then((response) => response.json())
+      .then((data) => {
+        setTerms((prevTerms) => [...prevTerms, { ...newTerm, id: data.id }]);
+        setNewTerm((prevTerm) => ({
           id: prevTerm.id + 1,
           startDate: null,
           endDate: null,
-          sem: 'odd'
+          sem: "odd",
         }));
-        setError('');
+        setError("");
       })
-      .catch(error => {
-        setError('There was an error creating the term!');
-        console.error('There was an error creating the term!', error);
+      .catch((error) => {
+        setError("There was an error creating the term!");
+        console.error("There was an error creating the term!", error);
       });
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toISOString().split('T')[0]; // "YYYY-MM-DD"
+    return date.toISOString().split("T")[0]; // "YYYY-MM-DD"
   };
 
   return (
     <Container
-      maxWidth="md"
+      maxWidth="lg"
       sx={{
         mt: 4,
         p: 2,
-        border: '1px solid #ccc',
-        borderRadius: '8px',
-        backgroundColor: '#ffffff'
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        backgroundColor: "#ffffff",
       }}
     >
       <Typography variant="h5" align="center" sx={{ mb: 3 }}>
@@ -426,39 +432,35 @@ const TermPage: React.FC = () => {
         <Typography variant="body1" sx={{ mb: 2 }}>
           Term ID: {newTerm.id}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="body1" sx={{ minWidth: '100px', pr: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Typography variant="body1" sx={{ minWidth: "100px", pr: 2 }}>
             Start Date:
           </Typography>
           <TextField
             type="date"
-            value={newTerm.startDate ? newTerm.startDate : ''}
+            value={newTerm.startDate ? newTerm.startDate : ""}
             onChange={handleStartDateChange}
             variant="outlined"
             fullWidth
           />
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="body1" sx={{ minWidth: '100px', pr: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Typography variant="body1" sx={{ minWidth: "100px", pr: 2 }}>
             End Date:
           </Typography>
           <TextField
             type="date"
-            value={newTerm.endDate ? newTerm.endDate : ''}
+            value={newTerm.endDate ? newTerm.endDate : ""}
             onChange={handleEndDateChange}
             variant="outlined"
             fullWidth
           />
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="body1" sx={{ minWidth: '100px', pr: 2 }}>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <Typography variant="body1" sx={{ minWidth: "100px", pr: 2 }}>
             Semester:
           </Typography>
-          <Select
-            value={newTerm.sem}
-            onChange={handleSemesterChange}
-            fullWidth
-          >
+          <Select value={newTerm.sem} onChange={handleSemesterChange} fullWidth>
             <MenuItem value="odd">Odd</MenuItem>
             <MenuItem value="even">Even</MenuItem>
           </Select>
@@ -502,7 +504,7 @@ const TermPage: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {terms.map(term => (
+              {terms.map((term) => (
                 <TableRow key={term.id}>
                   <TableCell>{term.id}</TableCell>
                   <TableCell>{formatDate(term.startDate)}</TableCell>

@@ -615,8 +615,8 @@ const BusPassRequest: React.FC = () => {
       }
 
       payload = {
-        stopName: stopAddress,
-        route: selectedRoute,
+        stop: stopAddress,
+        routeName: selectedRoute,
         requestType: requestType
       };
     } else if (requestType === 'Buspass Generation') {
@@ -781,7 +781,7 @@ const BusPassRequest: React.FC = () => {
             >
               <MenuItem value="" disabled>Select a route</MenuItem>
               {filteredRoutes.map(route => (
-                <MenuItem key={route.id} value={route.id}>
+                <MenuItem key={route.id} value={route.name}>
                   {route.name}
                 </MenuItem>
               ))}

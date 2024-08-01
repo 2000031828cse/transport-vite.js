@@ -1,6 +1,7 @@
 export type PassOrderStatus = 'pending' | 'approved' | 'rejected' | 'active' | 'inactive' ;
 
 export interface PassOrder {
+  requestType: string;
   requestStopName: string;
   routeId: number;
   routeName: string | null; // routeName can be null if not provided

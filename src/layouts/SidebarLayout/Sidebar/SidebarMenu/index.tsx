@@ -12,7 +12,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import AirportShuttleIcon from "@mui/icons-material/AirportShuttle";
-
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
   .MuiList-root {
@@ -83,6 +83,11 @@ function SidebarMenu({ userType }) {
       icon: <AirportShuttleIcon />,
       label: "Vehicle",
     }, // Add the new menu item here
+    {
+      to: "/management/user-management",
+      icon: <ManageAccountsIcon />,
+      label: "User Managemnet",
+    },
   ];
 
   const userItems = [

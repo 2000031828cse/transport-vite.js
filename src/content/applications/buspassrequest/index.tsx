@@ -621,7 +621,7 @@ const BusPassRequest: React.FC = () => {
         termStartDate: terms.find(t => t.id === selectedTerm)?.startDate,
         termEndDate: terms.find(t => t.id === selectedTerm)?.endDate,
         sem: selectedSemester,
-        stop: stopAddress,
+        stopName: stopAddress,
         routeName: selectedRoute,
         requestType: requestType
       };

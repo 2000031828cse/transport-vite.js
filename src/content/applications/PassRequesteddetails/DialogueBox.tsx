@@ -149,16 +149,65 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
     }
   };
 
-  const handleReject = () => {
+  // const handleReject = () => {
+  //   if (order) {
+  //     const routeName = selectedRoute || "";
+  //     const assignedStop = selectedStop || "";
+
+  //     // Logic to handle rejection
+  //     onSave("rejected", routeName, assignedStop, busPassId); // Send busPassId
+  //     onClose();
+  //   }
+  // };
+
+  const handleReject = async () => {
     if (order) {
       const routeName = selectedRoute || "";
       const assignedStop = selectedStop || "";
-
-      // Logic to handle rejection
-      onSave("rejected", routeName, assignedStop, busPassId); // Send busPassId
-      onClose();
+  
+      if (routeName && assignedStop && busPassId) {
+        try {
+          // Make the API call to update the order with rejection details
+          const response = await fetch(`/v2/api/transport/buspasses/${order.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${sessionStorage.getItem("otptoken")}`,
+            },
+            body: JSON.stringify({
+              status: "rejected",
+              routeName,
+              assignedStop,
+              buspassId: busPassId,
+            }),
+          });
+  
+          if (!response.ok) {
+            throw new Error(`Failed to reject the bus pass`);
+          }
+  
+          const updatedOrder: PassOrder = await response.json();
+  
+          // Update the orders state in the parent component
+          setOrders((prevOrders) =>
+            prevOrders.map((ord) =>
+              ord.id === updatedOrder.id ? updatedOrder : ord
+            )
+          );
+  
+          onClose();
+        } catch (error) {
+          console.error("Error rejecting the bus pass:", error);
+          alert("There was an error rejecting the bus pass. Please try again.");
+        }
+      } else {
+        console.error(
+          "Rejection failed: routeName, assignedStop, and busPassId are required."
+        );
+      }
     }
   };
+  
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -232,4 +281,6 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
 };
 
 export default ApprovalDialog;
+
+
 

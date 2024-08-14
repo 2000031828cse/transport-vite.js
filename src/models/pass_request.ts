@@ -14,4 +14,5 @@ export interface PassOrder {
   feeStatus: boolean;
   status: PassOrderStatus;
   buspassId: string; // Ensure buspassId is always a string
+  termId: number;
 }

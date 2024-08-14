@@ -1,446 +1,3 @@
-// import React, { FC, useState, ChangeEvent, useEffect } from "react";
-// import {
-//   Tooltip,
-//   Divider,
-//   Box,
-//   FormControl,
-//   InputLabel,
-//   Card,
-//   IconButton,
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TablePagination,
-//   TableRow,
-//   TableContainer,
-//   Select,
-//   MenuItem,
-//   Typography,
-//   useTheme,
-//   CardHeader,
-//   SelectChangeEvent,
-// } from "@mui/material";
-// import Label from "src/components/Label";
-// import { PassOrder, PassOrderStatus } from "src/models/pass_request";
-
-// import CheckIcon from "@mui/icons-material/Check";
-// import ApprovalDialog from "./DialogueBox";
-
-// interface PassRequestsTableProps {
-//   PassOrders: PassOrder[];
-// }
-
-// interface Filters {
-//   status?: PassOrderStatus | null;
-//   paymentStatus?: "paid" | "not paid" | null;
-// }
-
-// const getStatusLabel = (status: PassOrderStatus): JSX.Element => {
-//   const statusMap: Record<
-//     PassOrderStatus,
-//     { text: string; color: "success" | "warning" | "error" | "info" }
-//   > = {
-//     pending: {
-//       text: "Pending",
-//       color: "warning",
-//     },
-//     approved: {
-//       text: "Approved",
-//       color: "info",
-//     },
-//     rejected: {
-//       text: "Rejected",
-//       color: "error",
-//     },
-//     active: {
-//       text: "active",
-//       color: "success",
-//     },
-//     inactive: {
-//       text: "in-active",
-//       color: "error",
-//     },
-//   };
-
-//   const { text, color } = statusMap[status] || {
-//     text: "Unknown",
-//     color: "default",
-//   };
-
-//   return <Label color={color}>{text}</Label>;
-// };
-
-// const applyFilters = (
-//   PassOrders: PassOrder[],
-//   filters: Filters
-// ): PassOrder[] => {
-//   return PassOrders.filter((order) => {
-//     let matches = true;
-
-//     if (filters.status && order.status !== filters.status) {
-//       matches = false;
-//     }
-
-//     if (
-//       filters.paymentStatus &&
-//       order.feeStatus !== (filters.paymentStatus === "paid")
-//     ) {
-//       matches = false;
-//     }
-
-//     return matches;
-//   });
-// };
-
-// const applyPagination = (
-//   PassOrders: PassOrder[],
-//   page: number,
-//   limit: number
-// ): PassOrder[] => {
-//   return PassOrders.slice(page * limit, page * limit + limit);
-// };
-
-// const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
-//   const [selectedPassOrders, setSelectedPassOrders] = useState<number[]>([]);
-//   const [page, setPage] = useState<number>(0);
-//   const [limit, setLimit] = useState<number>(5);
-//   const [filters, setFilters] = useState<Filters>({
-//     status: null,
-//     paymentStatus: null,
-//   });
-//   const [orders, setOrders] = useState<PassOrder[]>(PassOrders);
-//   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-//   const [currentOrder, setCurrentOrder] = useState<PassOrder | null>(null);
-
-//   const otpt = sessionStorage.getItem("otptoken");
-
-//   const handleDialogOpen = (order: PassOrder) => {
-//     setCurrentOrder(order);
-//     setDialogOpen(true);
-//   };
-
-//   const handleDialogClose = () => {
-//     setDialogOpen(false);
-//     setCurrentOrder(null);
-//   };
-
-//   const handleApprovalClick = (
-//     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-//     order: PassOrder
-//   ) => {
-//     event.preventDefault();
-//     setCurrentOrder(order);
-//     setDialogOpen(true);
-//   };
-
-//   const handlePageChange = (event: any, newPage: number): void => {
-//     setPage(newPage);
-//   };
-
-//   const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-//     setLimit(parseInt(event.target.value, 10));
-//   };
-
-//   const handlePaymentStatusChangeForOrder = async (
-//     event: SelectChangeEvent<string>,
-//     orderId: number
-//   ): Promise<void> => {
-//     const newStatus = event.target.value as "paid" | "not paid";
-
-//     // Determine the new status based on payment status
-//     const updatedStatus = newStatus === "paid" ? "active" : "approved"; // Assuming approved if not paid
-
-//     try {
-//       // Update payment status and order status in a single call
-//       const response = await fetch(`/v2/api/transport/buspasses/${orderId}`, {
-//         method: "PUT",
-//         headers: {
-//           "Content-Type": "application/json",
-//           Authorization: `Bearer ${otpt}`,
-//         },
-//         body: JSON.stringify({
-//           feeStatus: newStatus === "paid",
-//           status: updatedStatus,
-//         }),
-//       });
-
-//       if (!response.ok) {
-//         throw new Error("Network response was not ok");
-//       }
-
-//       const updatedOrder: PassOrder = await response.json();
-//       console.log("Order updated successfully:", updatedOrder);
-
-//       // Update the state to reflect the changes
-//       setOrders((prevOrders) =>
-//         prevOrders.map((order) =>
-//           order.id === updatedOrder.id ? updatedOrder : order
-//         )
-//       );
-//     } catch (error) {
-//       console.error("Error updating order:", error);
-//       alert("There was an error updating the order. Please try again.");
-//     }
-//   };
-//   const handleApprovalUpdate = async (
-//     status: PassOrderStatus,
-//     routeName: string | null,
-//     assignedStop: string | null,
-//     busPassId: string // Change this from `orderId: number` to `busPassId: string`
-//   ) => {
-//     if (currentOrder) {
-//       // Check if status is approved and validate required fields
-//       if (
-//         status === "approved" &&
-//         (!routeName || !assignedStop || !busPassId)
-//       ) {
-//         console.error(
-//           "Approval failed: routeName and assignedStop are required."
-//         );
-//         // Optionally, show an error message to the user
-//         return;
-//       }
-
-//       try {
-//         const response = await fetch(
-//           `/v2/api/transport/buspasses/${currentOrder.id}`, // Use `busPassId` here
-//           {
-//             method: "PUT",
-//             headers: {
-//               "Content-Type": "application/json",
-//               Authorization: `Bearer ${otpt}`,
-//             },
-//             body: JSON.stringify({
-//               status,
-//               routeName: status === "approved" ? routeName : undefined,
-//               assignedStop: status === "approved" ? assignedStop : undefined,
-//               buspassId: status === "approved" ? busPassId : undefined,
-//             }),
-//           }
-//         );
-
-//         if (!response.ok) {
-//           const errorDetails = await response.text();
-//           console.error("Failed to update order:", {
-//             status: response.status,
-//             statusText: response.statusText,
-//             errorDetails,
-//           });
-//           throw new Error(`Failed to update order: ${response.statusText}`);
-//         }
-
-//         const updatedOrder: PassOrder = await response.json();
-
-//         setOrders((prevOrders) =>
-//           prevOrders.map((order) =>
-//             order.id === updatedOrder.id
-//               ? {
-//                   ...order,
-//                   status: updatedOrder.status,
-//                   routeName: updatedOrder.routeName,
-//                   assignedStop: updatedOrder.assignedStop,
-//                   requestStopName: updatedOrder.requestStopName,
-//                   student: updatedOrder.student || order.student,
-//                   buspassId: updatedOrder.buspassId,
-//                 }
-//               : order
-//           )
-//         );
-//         handleDialogClose();
-//       } catch (err) {
-//         console.error("Failed to update order:", err);
-//       }
-//     }
-//   };
-
-//   const filteredPassOrders = applyFilters(orders, filters);
-//   const paginatedPassOrders = applyPagination(filteredPassOrders, page, limit);
-//   const selectedSomePassOrders =
-//     selectedPassOrders.length > 0 &&
-//     selectedPassOrders.length < PassOrders.length;
-//   const selectedAllPassOrders = selectedPassOrders.length === PassOrders.length;
-//   const theme = useTheme();
-
-//   const statusOptions = [
-//     { id: "all", name: "All" },
-//     { id: "approved", name: "Approved" },
-//     { id: "pending", name: "Pending" },
-//     { id: "rejected", name: "Rejected" },
-//     { id: "active", name: "Active" },
-//     { id: "inactive", name: "In-Active" },
-//   ];
-
-//   const handleStatusChange = (event: SelectChangeEvent<string>): void => {
-//     const value =
-//       event.target.value !== "all"
-//         ? (event.target.value as PassOrderStatus)
-//         : null;
-
-//     setFilters((prevFilters) => ({
-//       ...prevFilters,
-//       status: value,
-//     }));
-//   };
-
-//   const handlePaymentStatusChange = (
-//     event: SelectChangeEvent<"paid" | "not paid">
-//   ): void => {
-//     const value =
-//       event.target.value !== "all"
-//         ? (event.target.value as "paid" | "not paid")
-//         : null;
-
-//     setFilters((prevFilters) => ({
-//       ...prevFilters,
-//       paymentStatus: value,
-//     }));
-//   };
-
-//   return (
-//     <Card>
-//       <CardHeader
-//         action={
-//           <Box display="flex" gap={2}>
-//             <FormControl fullWidth variant="outlined">
-//               <InputLabel>Status</InputLabel>
-//               <Select
-//                 value={filters.status || "all"}
-//                 onChange={handleStatusChange}
-//                 label="Status"
-//                 autoWidth
-//               >
-//                 {statusOptions.map((statusOption) => (
-//                   <MenuItem key={statusOption.id} value={statusOption.id}>
-//                     {statusOption.name}
-//                   </MenuItem>
-//                 ))}
-//               </Select>
-//             </FormControl>
-//             <FormControl fullWidth variant="outlined">
-//               <InputLabel>Payment Status</InputLabel>
-//               <Select
-//                 value={filters.paymentStatus || "all"}
-//                 onChange={handlePaymentStatusChange}
-//                 label="Payment Status"
-//                 autoWidth
-//               >
-//                 <MenuItem value="all">All</MenuItem>
-//                 <MenuItem value="paid">Paid</MenuItem>
-//                 <MenuItem value="not paid">Not Paid</MenuItem>
-//               </Select>
-//             </FormControl>
-//           </Box>
-//         }
-//         title={
-//           <Typography variant="h5" align="left">
-//             Bus Pass Requests
-//           </Typography>
-//         }
-//       />
-//       <Divider />
-//       <TableContainer>
-//         <Table>
-//           <TableHead>
-//             <TableRow>
-//               <TableCell>STUDENT ID</TableCell>
-//               <TableCell>NAME</TableCell>
-//               <TableCell>STOP REQUEST</TableCell>
-//               <TableCell>PAYMENT STATUS</TableCell>
-//               <TableCell>ACTIONS</TableCell>
-//               <TableCell>APPROVAL STATUS</TableCell>
-//               <TableCell>ROUTE NAME</TableCell>
-//             </TableRow>
-//           </TableHead>
-//           <TableBody>
-//             {paginatedPassOrders.map((order) => {
-//               const isPassOrderSelected = selectedPassOrders.includes(order.id);
-//               return (
-//                 <TableRow hover key={order.id} selected={isPassOrderSelected}>
-//                   <TableCell>
-//                     <Typography variant="body1" noWrap>
-//                       {order.userId}
-//                     </Typography>
-//                   </TableCell>
-//                   <TableCell>
-//                     <Typography variant="body1" noWrap>
-//                       {order.student?.name || "No Name"}
-//                     </Typography>
-//                   </TableCell>
-//                   <TableCell>
-//                     <Typography variant="body1" noWrap>
-//                       {order.assignedStop || order.requestStopName}
-//                     </Typography>
-//                   </TableCell>
-//                   <TableCell>
-//                     <FormControl variant="outlined" fullWidth>
-//                       <Select
-//                         value={order.feeStatus ? "paid" : "not paid"}
-//                         onChange={(event) =>
-//                           handlePaymentStatusChangeForOrder(event, order.id)
-//                         }
-//                       >
-//                         <MenuItem value="paid">Paid</MenuItem>
-//                         <MenuItem value="not paid">Not Paid</MenuItem>
-//                       </Select>
-//                     </FormControl>
-//                   </TableCell>
-//                   <TableCell>
-//                     <a
-//                       href="#"
-//                       onClick={(event) => handleApprovalClick(event, order)}
-//                     >
-//                       Approval
-//                     </a>
-//                   </TableCell>
-//                   <TableCell>{getStatusLabel(order.status)}</TableCell>
-//                   {/* <TableCell>
-//                      <Tooltip title="Update" arrow>
-//                       <IconButton
-//                         size="small"
-//                         color="primary"
-//                         onClick={() => handleApprovalUpdate("approved", order.routeName, order.assignedStop,order.buspassId)}
-//                       >
-//                         <CheckIcon />
-//                       </IconButton>
-//                     </Tooltip> 
-//                   </TableCell>*/}
-//                   <TableCell>
-//                     <Typography variant="body1" noWrap>
-//                       {order.routeName}
-//                     </Typography>
-//                   </TableCell>
-//                 </TableRow>
-//               );
-//             })}
-//           </TableBody>
-//         </Table>
-//       </TableContainer>
-//       <Box p={2}>
-//         <TablePagination
-//           component="div"
-//           count={filteredPassOrders.length}
-//           onPageChange={handlePageChange}
-//           onRowsPerPageChange={handleLimitChange}
-//           page={page}
-//           rowsPerPage={limit}
-//           rowsPerPageOptions={[5, 10, 25, 30]}
-//         />
-//       </Box>
-//       {currentOrder && (
-//         <ApprovalDialog
-//           open={dialogOpen}
-//           onClose={handleDialogClose}
-//           onSave={handleApprovalUpdate}
-//           order={currentOrder}
-//         />
-//       )}
-//     </Card>
-//   );
-// };
-
-// export default PassRequestsTable;
-
 import React, { FC, useState, ChangeEvent, useEffect } from "react";
 import {
   Tooltip,
@@ -467,6 +24,7 @@ import Label from "src/components/Label";
 import { PassOrder, PassOrderStatus } from "src/models/pass_request";
 
 import CheckIcon from "@mui/icons-material/Check";
+import DownloadIcon from "@mui/icons-material/Download";
 import ApprovalDialog from "./DialogueBox";
 
 interface PassRequestsTableProps {
@@ -513,7 +71,6 @@ const getStatusLabel = (status: PassOrderStatus): JSX.Element => {
 
   return <Label color={color}>{text}</Label>;
 };
-
 
 const applyFilters = (
   PassOrders: PassOrder[],
@@ -564,15 +121,101 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
 
   const otpt = sessionStorage.getItem("otptoken");
 
-  const handleDialogOpen = (order: PassOrder) => {
+  const handleDialogOpen = (order: PassOrder | null) => {
+    // if (order) {
     setCurrentOrder(order);
     setDialogOpen(true);
+    // }
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
     setCurrentOrder(null);
   };
+
+
+  const handleDownloadClick = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    order: PassOrder
+  ) => {
+    event.preventDefault();
+    try {
+      // Log the order details to check if they're correct
+      console.log("Generating bus pass for order:", order);
+
+      // Request to generate the bus pass and fetch the download link
+      const response = await fetch(
+        "/v2/api/transport/buspasses/generate-bus-pass",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${otpt}`,
+          },
+          body: JSON.stringify({
+            userId: order.userId,
+            termId: order.termId,
+          }),
+        }
+      );
+
+      // Check if the response is ok
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        console.error("Failed to generate bus pass:", errorMessage);
+        throw new Error("Failed to generate bus pass");
+      }
+
+      // Parse the response JSON
+      const data = await response.json();
+      console.log("Response data:", data);
+
+      // Ensure downloadLink is available
+      const { downloadLink } = data;
+      if (!downloadLink) {
+        console.error("Invalid response data:", data);
+        throw new Error("Response does not contain the download link.");
+      }
+
+      // Construct the download URL
+      const downloadUrl = `/v2/api/transport/buspasses${downloadLink}`;
+      console.log("Download URL:", downloadUrl);
+
+      // Fetch the file to download
+      const downloadResponse = await fetch(downloadUrl, {
+        headers: {
+          Authorization: `Bearer ${otpt}`,
+        },
+      });
+
+      // Check if the download response is ok
+      if (!downloadResponse.ok) {
+        const errorMessage = await downloadResponse.text();
+        console.error("Failed to download the bus pass:", errorMessage);
+        throw new Error("Failed to download the bus pass");
+      }
+
+      // Create a blob from the response
+      const blob = await downloadResponse.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        downloadLink.split("/").pop() || "bus_pass.pdf"
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      console.log("Bus pass downloaded successfully.");
+    } catch (error) {
+      console.error("Error generating or downloading bus pass:", error);
+      alert(
+        "There was an error generating or downloading the bus pass. Please try again."
+      );
+    }
+  };
+
 
   const handleApprovalClick = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -581,14 +224,6 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
     event.preventDefault();
     setCurrentOrder(order);
     setDialogOpen(true);
-  };
-
-  const handlePageChange = (event: any, newPage: number): void => {
-    setPage(newPage);
-  };
-
-  const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setLimit(parseInt(event.target.value, 10));
   };
 
   const handlePaymentStatusChangeForOrder = async (
@@ -699,6 +334,14 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
     }
   };
 
+  const handlePageChange = (event: any, newPage: number): void => {
+    setPage(newPage);
+  };
+
+  const handleLimitChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setLimit(parseInt(event.target.value, 10));
+  };
+
   const handleRequestTypeChange = (event: SelectChangeEvent<string>): void => {
     const requestType = event.target.value;
     setFilters((prevFilters) => ({
@@ -726,7 +369,9 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                 <MenuItem value="New Bus Pass Request">
                   New Bus Pass Request
                 </MenuItem>
-                <MenuItem value="Buspass Generation">Bus Pass Generation</MenuItem>
+                <MenuItem value="Buspass Generation">
+                  Bus Pass Generation
+                </MenuItem>
                 <MenuItem value="Update the route">Update the Route</MenuItem>
               </Select>
             </FormControl>
@@ -800,12 +445,38 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                 selected={selectedPassOrders.includes(order.id)}
               >
                 <TableCell>
-                  <Typography variant="body2" fontWeight="bold" noWrap>
-                    {order.student?.name || "N/A"}
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    color="text.primary"
+                    gutterBottom
+                    noWrap
+                  >
+                    {order.student.name}
                   </Typography>
                 </TableCell>
-                <TableCell>{order.requestStopName || "N/A"}</TableCell>
-                <TableCell>{order.routeName || "N/A"}</TableCell>
+                <TableCell>
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    color="text.primary"
+                    gutterBottom
+                    noWrap
+                  >
+                    {order.requestStopName}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    color="text.primary"
+                    gutterBottom
+                    noWrap
+                  >
+                    {order.routeName}
+                  </Typography>
+                </TableCell>
                 <TableCell>{getStatusLabel(order.status)}</TableCell>
                 <TableCell>
                   <FormControl variant="outlined" fullWidth>
@@ -820,17 +491,30 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
                     </Select>
                   </FormControl>
                 </TableCell>
+                
                 <TableCell align="right">
-                  <Tooltip title="Approve Order" arrow>
-                    <IconButton
-                      color="primary"
-                      onClick={(event) =>
-                        handleApprovalClick(event, order)
-                      }
-                    >
-                      <CheckIcon />
-                    </IconButton>
-                  </Tooltip>
+                  {order.requestType === "Buspass Generation" ? (
+                    <Tooltip title="Download Bus Pass" arrow>
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        onClick={(event) => handleDownloadClick(event, order)}
+                      >
+                        <DownloadIcon />
+                      </IconButton>
+                    </Tooltip>
+                  ) : order.requestType === "New Bus Pass Request" ||
+                    order.requestType === "Update the route" ? (
+                    <Tooltip title="Approve Order" arrow>
+                      <IconButton
+                        color="primary"
+                        size="small"
+                        onClick={(event) => handleApprovalClick(event, order)}
+                      >
+                        <CheckIcon />
+                      </IconButton>
+                    </Tooltip>
+                  ) : null}
                 </TableCell>
               </TableRow>
             ))}
@@ -846,15 +530,12 @@ const PassRequestsTable: FC<PassRequestsTableProps> = ({ PassOrders }) => {
         rowsPerPage={limit}
         rowsPerPageOptions={[5, 10, 25]}
       />
-
-      {currentOrder && (
-        <ApprovalDialog
-          open={dialogOpen}
-          onClose={handleDialogClose}
-          onSave={handleApprovalUpdate}
-          order={currentOrder}
-        />
-      )}
+      <ApprovalDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        order={currentOrder}
+        setOrders={setOrders}
+      />
     </Card>
   );
 };

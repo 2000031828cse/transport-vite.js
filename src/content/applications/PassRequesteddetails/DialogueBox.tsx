@@ -12,7 +12,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import { PassOrder, PassOrderStatus } from "src/models/pass_request";
+import { PassOrder } from "src/models/pass_request";
 import { useStops } from "../Stops/StopsContext";
 
 interface ApprovalDialogProps {
@@ -41,38 +41,34 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
   setOrders,
 }) => {
   const classes = useStyles();
-  const [busPassId, setBusPassId] = useState<string>(order?.buspassId || "");
-  const [selectedRoute, setSelectedRoute] = useState<string>(
-    order?.routeName || ""
-  );
-  const [selectedStop, setSelectedStop] = useState<string>(
-    order?.assignedStop || ""
-  );
   const { stops } = useStops();
+
+  // State to manage input fields
+  const [busPassId, setBusPassId] = useState<string>("");
+  const [selectedRoute, setSelectedRoute] = useState<string>("");
+  const [selectedStop, setSelectedStop] = useState<string>(order?.assignedStop || "");
   const [filteredRoutes, setFilteredRoutes] = useState<string[]>([]);
+
+  // Effect to fetch routes when the stop is selected or changed
+
+  useEffect(() => {
+    if (order) {
+      setSelectedStop(order.assignedStop || "");
+    }
+  }, [order]);
 
   useEffect(() => {
     const fetchRoutesForStop = async (stopId: string) => {
-      if (!stopId) return; // Avoid fetching if no stop ID is provided
+      if (!stopId) return;
 
       try {
-        console.log(`Fetching routes for stop ID: ${stopId}`);
         const response = await fetch(`/v2/api/transport/routes?stopId=${stopId}`);
-
-        if (!response.ok) {
-          throw new Error(`Error fetching routes: ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Error fetching routes: ${response.statusText}`);
 
         const routesData = await response.json();
-        console.log("Fetched routes data:", routesData);
-
-        // Filter routes that contain the selected stop
         const routesWithStop = routesData.filter((route: any) =>
           route.stops.some((stop: any) => stop.id === parseInt(stopId))
         );
-        console.log("Filtered routes with selected stop:", routesWithStop);
-
-        // Extract the route names from the filtered routes
         const routeNames = routesWithStop.map((route: any) => route.name);
         setFilteredRoutes(routeNames);
       } catch (error) {
@@ -81,11 +77,8 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
     };
 
     const selectedStopId = stops.find((stop) => stop.address === selectedStop)?.id;
-    if (selectedStopId) {
-      fetchRoutesForStop(selectedStopId.toString());
-    } else {
-      setFilteredRoutes([]);
-    }
+    if (selectedStopId) fetchRoutesForStop(selectedStopId.toString());
+    else setFilteredRoutes([]);
   }, [selectedStop, stops]);
 
   const handleBusPassIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,113 +94,66 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
   };
 
   const handleApprove = async () => {
-    if (order) {
-      const routeName = selectedRoute || "";
-      const assignedStop = selectedStop || "";
+    if (order && selectedRoute && selectedStop && busPassId) {
+      try {
+        const response = await fetch(`/v2/api/transport/buspasses/${order.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("otptoken")}`,
+          },
+          body: JSON.stringify({
+            status: "approved",
+            routeName: selectedRoute,
+            assignedStop: selectedStop,
+            buspassId: busPassId,
+          }),
+        });
 
-      if (routeName && assignedStop && busPassId) {
-        try {
-          // Make the API call to update the order with approval details
-          const response = await fetch(`/v2/api/transport/buspasses/${order.id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionStorage.getItem("otptoken")}`,
-            },
-            body: JSON.stringify({
-              status: "approved",
-              routeName,
-              assignedStop,
-              buspassId: busPassId,
-            }),
-          });
+        if (!response.ok) throw new Error(`Failed to approve the bus pass`);
 
-          if (!response.ok) {
-            throw new Error(`Failed to approve the bus pass`);
-          }
-
-          const updatedOrder: PassOrder = await response.json();
-
-          // Update the orders state in the parent component
-          setOrders((prevOrders) =>
-            prevOrders.map((ord) =>
-              ord.id === updatedOrder.id ? updatedOrder : ord
-            )
-          );
-
-          // Close the dialog after successful approval
-          onClose();
-        } catch (error) {
-          console.error("Error approving the bus pass:", error);
-          alert("There was an error approving the bus pass. Please try again.");
-        }
-      } else {
-        console.error(
-          "Approval failed: routeName, assignedStop, and busPassId are required."
+        const updatedOrder: PassOrder = await response.json();
+        setOrders((prevOrders) =>
+          prevOrders.map((ord) => (ord.id === updatedOrder.id ? updatedOrder : ord))
         );
+        onClose();
+      } catch (error) {
+        console.error("Error approving the bus pass:", error);
+        alert("There was an error approving the bus pass. Please try again.");
       }
     }
   };
-
-  // const handleReject = () => {
-  //   if (order) {
-  //     const routeName = selectedRoute || "";
-  //     const assignedStop = selectedStop || "";
-
-  //     // Logic to handle rejection
-  //     onSave("rejected", routeName, assignedStop, busPassId); // Send busPassId
-  //     onClose();
-  //   }
-  // };
 
   const handleReject = async () => {
-    if (order) {
-      const routeName = selectedRoute || "";
-      const assignedStop = selectedStop || "";
-  
-      if (routeName && assignedStop && busPassId) {
-        try {
-          // Make the API call to update the order with rejection details
-          const response = await fetch(`/v2/api/transport/buspasses/${order.id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${sessionStorage.getItem("otptoken")}`,
-            },
-            body: JSON.stringify({
-              status: "rejected",
-              routeName,
-              assignedStop,
-              buspassId: busPassId,
-            }),
-          });
-  
-          if (!response.ok) {
-            throw new Error(`Failed to reject the bus pass`);
-          }
-  
-          const updatedOrder: PassOrder = await response.json();
-  
-          // Update the orders state in the parent component
-          setOrders((prevOrders) =>
-            prevOrders.map((ord) =>
-              ord.id === updatedOrder.id ? updatedOrder : ord
-            )
-          );
-  
-          onClose();
-        } catch (error) {
-          console.error("Error rejecting the bus pass:", error);
-          alert("There was an error rejecting the bus pass. Please try again.");
-        }
-      } else {
-        console.error(
-          "Rejection failed: routeName, assignedStop, and busPassId are required."
+    if (order && selectedRoute && selectedStop && busPassId) {
+      try {
+        const response = await fetch(`/v2/api/transport/buspasses/${order.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("otptoken")}`,
+          },
+          body: JSON.stringify({
+            status: "rejected",
+            routeName: selectedRoute,
+            assignedStop: selectedStop,
+            buspassId: busPassId,
+          }),
+        });
+
+        if (!response.ok) throw new Error(`Failed to reject the bus pass`);
+
+        const updatedOrder: PassOrder = await response.json();
+        setOrders((prevOrders) =>
+          prevOrders.map((ord) => (ord.id === updatedOrder.id ? updatedOrder : ord))
         );
+        onClose();
+      } catch (error) {
+        console.error("Error rejecting the bus pass:", error);
+        alert("There was an error rejecting the bus pass. Please try again.");
       }
     }
   };
-  
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -231,8 +177,8 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
             <Select
               value={selectedStop || ""}
               onChange={handleStopChange}
-              displayEmpty
               fullWidth
+              displayEmpty
               style={{ marginTop: "10px" }}
             >
               <MenuItem value="">
@@ -249,8 +195,8 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
             <Select
               value={selectedRoute || ""}
               onChange={handleRouteChange}
-              displayEmpty
               fullWidth
+              displayEmpty
               style={{ marginTop: "10px" }}
             >
               <MenuItem value="" disabled>
@@ -281,6 +227,3 @@ const ApprovalDialog: FC<ApprovalDialogProps> = ({
 };
 
 export default ApprovalDialog;
-
-
-
